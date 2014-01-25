@@ -17,7 +17,7 @@ public class Tribalwars extends Site {
 	@Override
 	public void goToSite() {
 		String url = "http://www." + ResourceBundleUtil.getGeneralBundleString("hostname");
-		this.driver.get(url);
+		driver().get(url);
 	}
 
 	private WebElement getLoginButton() {

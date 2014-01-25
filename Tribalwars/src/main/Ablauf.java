@@ -26,7 +26,7 @@ public class Ablauf {
 		Farmassistant fm = new Farmassistant(driver);
 		fm.goToSite();
 		
-		fm.getFarmEntries();
+//		fm.getFarmEntries();
 		
 //		List<WebElement> ressis = fm.getRessis();
 //		for (WebElement ressi : ressis) {

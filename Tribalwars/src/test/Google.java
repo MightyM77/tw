@@ -10,18 +10,18 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class TestSite extends Site {
+public class Google extends Site {
 
 	WebElement test = null;
 	
-	public TestSite(WebDriver pDriver) {
+	public Google(WebDriver pDriver) {
 		super("", pDriver);
 	}
 	
 	@Override
 	public void goToSite() {
 		String url = "http://www.google.ch";
-		this.driver.get(url);
+		driver().get(url);
 	}
 
 	public WebElement getSearchBtn() {
@@ -45,7 +45,7 @@ public class TestSite extends Site {
 	}
 	
 	public void highlightDemo() {
-		Highlighter.getInstance().highlightElementsFlash(driver, getSearchBtn(), getSearchTxt());
+		Highlighter.getInstance().highlightElementsFlash(driver(), getSearchBtn(), getSearchTxt());
 	}
 	
 
