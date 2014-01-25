@@ -79,13 +79,33 @@ public class Farmassistant extends Site {
 		
 		List<WebElement> tableRows = getFarmEntriesTable().findElements(By.cssSelector(".row_a,.row_b"));
 		FarmEntry[] farmEntries = new FarmEntry[tableRows.size()];
+		FarmEntry farmEntry;
+		List<WebElement> rowCells;
+		WebElement deleteButton;
+		String farmStatusImageSrc;
+		String maxLootImageSrc;
+		WebElement villageLink;
+		String[] villageCoordArray;
+		Point villageCoord;
+		String lastFarmingTimeString;
+		Date lastFarmingTime;
+		List<WebElement> resources;
+		int wood;
+		int clay;
+		int iron;
+		int wallLevel;
+		double distance;
+		FarmButton aButton;
+		FarmButton bButton;
+		FarmButton cButton;
+		WebElement reallyPointLink;
 		for (int i = 0; i < tableRows.size(); i++) {
-			List<WebElement> rowCells = tableRows.get(i).findElements(By.tagName("td"));
+			rowCells = tableRows.get(i).findElements(By.tagName("td"));
 
 			// DELETE BUTTON
-			WebElement deleteButton = rowCells.get(0).findElement(By.tagName("a"));
+			deleteButton = rowCells.get(0).findElement(By.tagName("a"));
 			// FARM_STATUS
-			String farmStatusImageSrc = rowCells.get(1).findElement(By.tagName("img")).getAttribute("src");
+			farmStatusImageSrc = rowCells.get(1).findElement(By.tagName("img")).getAttribute("src");
 			int farmStatus = -1;
 			if (farmStatusImageSrc.contains("green")) {
 				farmStatus = FarmEntry.FARMSTATUS_GREEN;
@@ -97,7 +117,7 @@ public class Farmassistant extends Site {
 				farmStatus = FarmEntry.FARMSTATUS_BLUE;
 			}
 			// MAX_LOOT
-			String maxLootImageSrc = rowCells.get(2).findElement(By.tagName("img")).getAttribute("src");
+			maxLootImageSrc = rowCells.get(2).findElement(By.tagName("img")).getAttribute("src");
 			boolean maxLoot = false;
 			if (maxLootImageSrc.contains("0.png")) {
 				maxLoot = false;
@@ -105,21 +125,19 @@ public class Farmassistant extends Site {
 				maxLoot = true;
 			}
 			// VILLAGE_LINK & VILLAGE_COORD
-			WebElement villageLink = rowCells.get(3).findElement(By.tagName("a"));
+			villageLink = rowCells.get(3).findElement(By.tagName("a"));
 
 
-			String[] villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
-			Point villageCoord = new Point(Integer.valueOf(villageCoordArray[0]), Integer.valueOf(villageCoordArray[1]));
+			villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
+			villageCoord = new Point(Integer.valueOf(villageCoordArray[0]), Integer.valueOf(villageCoordArray[1]));
 
 			// LAST_FARMING_TIME
-			String lastFarmingTimeString = rowCells.get(4).getText();
-			Date lastFarmingTime = parseLastFarmingStringToDate(lastFarmingTimeString);
+			lastFarmingTimeString = rowCells.get(4).getText();
+			lastFarmingTime = parseLastFarmingStringToDate(lastFarmingTimeString);
 
 			// WOOD & CLAY & IRON
-			List<WebElement> resources = rowCells.get(5).findElements(By.cssSelector("span.warn,span.res,span.warn_90"));
-			int wood;
-			int clay;
-			int iron;
+			resources = rowCells.get(5).findElements(By.cssSelector("span.warn,span.res,span.warn_90"));
+			
 			if (resources.size() == 3) {
 				wood = Integer.valueOf(resources.get(0).getText().replaceAll("[^0-9]", ""));
 				clay = Integer.valueOf(resources.get(1).getText().replaceAll("[^0-9]", ""));
@@ -130,7 +148,7 @@ public class Farmassistant extends Site {
 				iron = -1;
 			}
 			// WALL_LEVEL
-			int wallLevel;
+			
 			try {
 				wallLevel = Integer.valueOf(rowCells.get(6).getText());
 			} catch (java.lang.NumberFormatException e) {
@@ -138,19 +156,19 @@ public class Farmassistant extends Site {
 			}
 
 			// DISTANCE
-			double distance = Double.valueOf(rowCells.get(7).getText());
+			distance = Double.valueOf(rowCells.get(7).getText());
 			// A_BUTTON
-			FarmButton aButton = getFarmButton(rowCells.get(8));
+			aButton = getFarmButton(rowCells.get(8));
 			// B_BUTTON
-			FarmButton bButton = getFarmButton(rowCells.get(9));
+			bButton = getFarmButton(rowCells.get(9));
 			// C_BUTTON
-			FarmButton cButton = getFarmButton(rowCells.get(10));
+			cButton = getFarmButton(rowCells.get(10));
 			// REALLYPOINT_LINK
-			WebElement reallyPointLink = rowCells.get(11).findElement(By.tagName("a"));
+			reallyPointLink = rowCells.get(11).findElement(By.tagName("a"));
 //			Highlighter.getInstance().highlightElementFlash(driver, reallyPointLink);
 
 			// Initialize FarmEntry
-			FarmEntry farmEntry = new FarmEntry();
+			farmEntry = new FarmEntry();
 			farmEntry.setDeleteButton(deleteButton);
 			farmEntry.setFarmStatus(farmStatus);
 			farmEntry.setMaxLoot(maxLoot);
