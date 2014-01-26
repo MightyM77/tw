@@ -1,15 +1,15 @@
 package test;
 
-import main.Site;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import tool.Site;
+
 public class Tribalwars extends Site {
 
 	public Tribalwars(WebDriver pDriver) {
-		super("", pDriver);
+		super("", "", pDriver);
 	}
 
 	@Override

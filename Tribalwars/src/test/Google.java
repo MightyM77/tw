@@ -2,20 +2,20 @@ package test;
 
 import java.util.List;
 
-import main.Highlighter;
-import main.Site;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import tool.Site;
+import utile.Highlighter;
 
 public class Google extends Site {
 
 	WebElement test = null;
 	
 	public Google(WebDriver pDriver) {
-		super("", pDriver);
+		super("", "", pDriver);
 	}
 	
 	@Override
@@ -42,10 +42,6 @@ public class Google extends Site {
 
 	public WebElement getNull() {
 		return this.test;
-	}
-	
-	public void highlightDemo() {
-		Highlighter.getInstance().highlightElementsFlash(driver(), getSearchBtn(), getSearchTxt());
 	}
 	
 

@@ -1,8 +1,9 @@
-package main.farmassistent;
+package tool.farmassistant;
 
 import java.awt.Point;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,16 +13,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import main.Highlighter;
-import main.ResourceBundleUtil;
-import main.Site;
-import main.config.Configuration;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import config.Configuration;
+import tool.Site;
+import utile.Helper;
+import utile.Highlighter;
+import utile.ResourceBundleUtil;
+import utile.Troop;
 
 public class Farmassistant extends Site {
 
@@ -30,7 +34,7 @@ public class Farmassistant extends Site {
 	private String timeformat = ResourceBundleUtil.getFarmassistantBundleString("timeformat");
 	
 	public Farmassistant(WebDriver pDriver) {
-		super("/game.php?screen=am_farm", pDriver);
+		super("/game.php", "am_farm", pDriver);
 	}
 
 	private Date parseLastFarmingStringToDate(String lastFarmingTimeString) {
@@ -76,37 +80,52 @@ public class Farmassistant extends Site {
 		return entriesFatherDiv.findElement(By.tagName("table"));
 	}
 
-	public void setOnlyAttacksFromThisVillage(boolean state) {
-		WebElement allVillagesCheckbox = findElement(By.id("all_village_checkbox"));
-		if (state && !allVillagesCheckbox.isSelected()) {
-			allVillagesCheckbox.click();
-		} else if (!state && allVillagesCheckbox.isSelected()) {
-			allVillagesCheckbox.click();
+	private void setCheckboxState(WebElement checkbox, boolean state) {
+		wait.until(ExpectedConditions.elementToBeClickable(checkbox));
+		if (state && !checkbox.isSelected()) {
+			checkbox.click();
+		} else if (!state && checkbox.isSelected()) {
+			checkbox.click();
 		}
+	}
+	
+	public void setOnlyAttacksFromThisVillage(boolean state) {
+		setCheckboxState(findElement(By.id("all_village_checkbox")), state);
 	}
 
 	public void setOnlyFullLosses(boolean state) {
-		WebElement onlyFullLosses = findElement(By.id("full_losses_checkbox"));
-		if (state && !onlyFullLosses.isSelected()) {
-			onlyFullLosses.click();
-		} else if (!state && onlyFullLosses.isSelected()) {
-			onlyFullLosses.click();
-		}
+		setCheckboxState(findElement(By.id("full_losses_checkbox")), state);
 	}
 
 	public void setAvailableTroops(String[] troopNamesToEnable) {
-		List<WebElement> troopCheckboxes = findElement(By.id("units_home")).findElements(By.xpath("//*[@type='checkbox']"));
-
+		WebElement troopRow = findElement(By.id("units_home"));
+		List<WebElement> troopCheckboxes = troopRow.findElements(By.xpath(".//input[@type='checkbox']"));
+		List<String> checkboxNames = new ArrayList<String>();
+		List<String> troopNamesToEnableList = new ArrayList<String>();
+		
+		for (String troopName : troopNamesToEnable) {
+			troopNamesToEnableList.add(troopName);
+		}
 		for (WebElement troopCheckbox : troopCheckboxes) {
-			if (Arrays.asList(troopNamesToEnable).contains(troopCheckbox.getAttribute("name"))) {
+			checkboxNames.add(troopCheckbox.getAttribute("name"));
+		}
+		WebElement troopCheckbox;
+		for (int i = 0; i < checkboxNames.size(); i++) {
+			troopCheckbox = troopRow.findElement(By.xpath(".//input[@name='" + checkboxNames.get(i) + "']"));
+			if (troopNamesToEnableList.contains(checkboxNames.get(i))) {
 				if (!troopCheckbox.isSelected()) {
 					troopCheckbox.click();
 				}
+				troopNamesToEnableList.remove(checkboxNames.get(i));
 			} else {
 				if (troopCheckbox.isSelected()) {
 					troopCheckbox.click();
 				}
 			}
+		}
+		
+		for (String troopName : troopNamesToEnableList) {
+			System.out.println("Es konnte keine Checkbox mit dem Attributwert '" + troopName + "' des Attributs 'name' gefunden werden");
 		}
 	}
 
@@ -122,7 +141,8 @@ public class Farmassistant extends Site {
 	}
 
 	private Map<String, Integer> getAtemplateTroops(int templateNumber) {
-		List<WebElement> inputs = findElements(By.tagName("form")).get(templateNumber).findElements(By.xpath("//input[@type='text']"));
+		List<WebElement> inputs = findElements(By.tagName("form")).get(templateNumber).findElements(By.xpath(".//input[@type='text']"));
+		System.out.println(inputs.size());
 		Map<String, Integer> aTemplateTroops = new HashMap<String, Integer>();
 
 		for (WebElement input : inputs) {
@@ -152,26 +172,48 @@ public class Farmassistant extends Site {
 		WebElement input;
 		while (iterator.hasNext()) {
 			Map.Entry<String, Integer> pairs = (Map.Entry<String, Integer>) iterator.next();
-			input = form.findElement(By.xpath("//input[@name='" + pairs.getKey() + "']"));
+			input = form.findElement(By.xpath(".//input[@name='" + pairs.getKey() + "']"));
 			input.click();
 			input.sendKeys(Keys.chord(Keys.CONTROL, "a"), pairs.getValue().toString());
 		}
 
-		form.findElement(By.xpath("//input[@value='" + ResourceBundleUtil.getFarmassistantBundleString("save") + "']")).click();
+		form.findElement(By.xpath(".//input[@value='" + ResourceBundleUtil.getFarmassistantBundleString("save") + "']")).click();
 		;
 	}
 
+	private void setTemplateTroops(int templateNumber, int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
+		Map<String, Integer> troopAmounts = new HashMap<String, Integer>();
+		troopAmounts.put(Troop.SPEAR_NAME, spear);
+		troopAmounts.put(Troop.SWORD_NAME, sword);
+		troopAmounts.put(Troop.AXE_NAME, axe);
+		troopAmounts.put(Troop.ARCHER_NAME, archer);
+		troopAmounts.put(Troop.SPY_NAME, spy);
+		troopAmounts.put(Troop.LIGHT_NAME, light);
+		troopAmounts.put(Troop.MARCHER_NAME, marcher);
+		troopAmounts.put(Troop.HEAVY_NAME, heavy);
+		troopAmounts.put(Troop.KNIGHT_NAME, knight);
+		setTemplateTroops(templateNumber, troopAmounts);
+	}
+	
 	public void setAtemplateTroops(Map<String, Integer> troopAmounts) {
 		setTemplateTroops(0, troopAmounts);
+	}
+	
+	public void setAtemplateTroops(int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
+		setTemplateTroops(0, spear, sword, axe, archer, spy, light, marcher, heavy, knight);
 	}
 
 	public void setBtemplateTroops(Map<String, Integer> troopAmounts) {
 		setTemplateTroops(1, troopAmounts);
 	}
 
+	public void setBtemplateTroops(int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
+		setTemplateTroops(1, spear, sword, axe, archer, spy, light, marcher, heavy, knight);
+	}
+	
 	private int getTemplateHaulCapacity(int templateNumber) {
 		List<WebElement> tds = findElements(By.tagName("form")).get(templateNumber).findElements(By.tagName("tr")).get(1).findElements(By.tagName("td"));
-		return Integer.valueOf(tds.get(tds.size() - 1).getText());
+		return Integer.valueOf(tds.get(tds.size() - 1).getText().replaceAll("[^0-9]", ""));
 	}
 
 	public int getAtemplateHaulCapacity() {
@@ -208,7 +250,7 @@ public class Farmassistant extends Site {
 		sortByDistance("asc");
 	}
 
-	public void sortByCistanceAbwaerts() {
+	public void sortByDistanceAbwaerts() {
 		sortByDistance("desc");
 	}
 	

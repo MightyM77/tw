@@ -1,4 +1,7 @@
-package main;
+package utile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -32,7 +35,7 @@ public class Highlighter {
 				element, "");
 	}
 	
-	private void unHighlightElements(WebDriver driver, WebElement... elements) {
+	private void unHighlightElements(WebDriver driver, List<WebElement> elements) {
 		for (WebElement element : elements) {
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("arguments[0].setAttribute('style', arguments[1]);",
@@ -63,14 +66,14 @@ public class Highlighter {
 		}
 	}
 
-	public void highlightElements(WebDriver driver, WebElement... elements) {
+	public void highlightElements(WebDriver driver, List<WebElement> elements) {
 		for (WebElement element : elements) {
 			highlightElement(driver, element);
 		}
 	}
 
 	public void highlightElementsFlash(WebDriver driver,
-			WebElement... elements) {
+			List<WebElement> elements) {
 		for (int i = 0; i < this.flashRounds; i++) {
 			highlightElements(driver, elements);
 			try {

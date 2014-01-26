@@ -1,4 +1,4 @@
-package main.farmassistent;
+package tool.farmassistant;
 
 import java.awt.Point;
 import java.util.Date;

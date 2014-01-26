@@ -1,17 +1,18 @@
-package main;
+package tool;
 import java.util.List;
 import java.util.ResourceBundle;
-
-import main.config.Configuration;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import config.Configuration;
+import utile.ResourceBundleUtil;
+
 public class Tribalwars extends Site {
 	
 	public Tribalwars(WebDriver pDriver) {
-		super("", pDriver);
+		super("", "", pDriver);
 	}
 	
 	@Override
