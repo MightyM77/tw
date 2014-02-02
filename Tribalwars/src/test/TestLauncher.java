@@ -1,5 +1,6 @@
 package test;
 
+import java.awt.Toolkit;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -26,12 +27,10 @@ import config.Configuration;
 public class TestLauncher {
 
 	public static void main(String[] args) {
-		WebDriver driver = new FirefoxDriver();
-		Google google = new Google(driver);
-		google.goToSite();
-		List<WebElement> elements = driver.findElements(By.xpath("//button[starts-with(@id,'gbqfb')]"));
-		for (WebElement element : elements) {
-			Highlighter.getInstance().highlightElementFlash(driver, element);
-		}
+		Calendar c = Calendar.getInstance(Configuration.LOCALE);
+		System.out.println(c.getTime());
+		c.add(Calendar.SECOND, 1000);
+		System.out.println(c.getTime());
+		System.out.println(Calendar.getInstance().getTime());
 	}
 }

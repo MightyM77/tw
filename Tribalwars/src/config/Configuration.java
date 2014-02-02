@@ -3,6 +3,9 @@ package config;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
 import utile.ResourceBundleUtil;
 
 public class Configuration {
@@ -12,6 +15,8 @@ public class Configuration {
 	public static final int WORLD = 13;
 	public static final String USERNAME = "MightyM";
 	public static final String PASSWORD = "dakommstenetrein";
+	
+	public static final WebDriver DRIVER = new FirefoxDriver();
 	
 	private Configuration() {
 		

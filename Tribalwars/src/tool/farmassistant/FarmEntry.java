@@ -1,21 +1,21 @@
 package tool.farmassistant;
 
 import java.awt.Point;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.openqa.selenium.WebElement;
 
+import utile.ReportStatus;
+import utile.Troop;
+
 public class FarmEntry {
 
-	public static int FARMSTATUS_GREEN = 0;
-	public static int FARMSTATUS_YELLOW = 1;
-	public static int FARMSTATUS_RED = 2;
-	public static int FARMSTATUS_BLUE = 3;
-	
 	private WebElement deleteButton;
-	private int farmStatus;
+	private ReportStatus reportStatus;
 	private boolean maxLoot;
 	private WebElement villageLink;
+	private int attacks;
 	private Point villageCoord;
 	private Date lastFarmingTime;
 	private int clay;
@@ -27,103 +27,100 @@ public class FarmEntry {
 	private FarmButton bButton;
 	private FarmButton cButton;
 	private WebElement reallyPointLink;
-	
-	public FarmEntry() {
-		
+
+	public FarmEntry(WebElement pDeleteButton, ReportStatus pReportStatus, boolean pMaxLoot, WebElement pVillageLink, int pAttacks, Point pVillageCoord, Date pLastFarmingTime, int pWood, int pClay, int pIron,
+			int pWall, double pDistance, FarmButton pAbutton, FarmButton pBbutton, FarmButton pCbutton, WebElement pReallyPoint) {
+		this.deleteButton = pDeleteButton;
+		this.reportStatus = pReportStatus;
+		this.maxLoot = pMaxLoot;
+		this.villageLink = pVillageLink;
+		this.attacks = pAttacks;
+		this.villageCoord = pVillageCoord;
+		this.lastFarmingTime = pLastFarmingTime;
+		this.clay = pClay;
+		this.wood = pWood;
+		this.iron = pIron;
+		this.wallLevel = pWall;
+		this.distance = pDistance;
+		this.aButton = pAbutton;
+		this.bButton = pBbutton;
+		this.cButton = pCbutton;
+		this.reallyPointLink = pReallyPoint;
 	}
-	
+
 	public WebElement getDeleteButton() {
 		return this.deleteButton;
 	}
-	public void setDeleteButton(WebElement pDeleteButton) {
-		this.deleteButton = pDeleteButton;
-	}
+
 	public WebElement getVillageLink() {
 		return this.villageLink;
 	}
-	public void setVillageLink(WebElement pVillageLink) {
-		this.villageLink = pVillageLink;
-	}
+
 	public Point getVillageCoord() {
 		return villageCoord;
 	}
-	public void setVillageCoord(Point villageCoord) {
-		this.villageCoord = villageCoord;
+
+	public int getAttacks() {
+		return this.attacks;
 	}
+	
 	public Date getLastFarmingTime() {
 		return lastFarmingTime;
 	}
-	
-	public void setLastFarmingTime(Date lastFarmingTime) {
-		this.lastFarmingTime = lastFarmingTime;
-	}
+
 	public int getClay() {
 		return clay;
 	}
-	
-	
-	
-	public void setClay(int clay) {
-		this.clay = clay;
-	}
+
 	public int getWood() {
 		return wood;
 	}
-	public void setWood(int wood) {
-		this.wood = wood;
-	}
+
 	public int getIron() {
 		return iron;
 	}
-	public void setIron(int iron) {
-		this.iron = iron;
-	}
+
 	public int getWallLevel() {
 		return wallLevel;
 	}
-	public void setWallLevel(int wallLevel) {
-		this.wallLevel = wallLevel;
-	}
-	public double getDistance() {
+
+	private double getDistance() {
 		return distance;
 	}
-	public void setDistance(double distance) {
-		this.distance = distance;
+	
+	public Calendar getArrivingDate(Troop troop) {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.SECOND, (int) (getDistance() * troop.getWalkingDurationSeconds()));
+		return c;
 	}
+	
+	public Calendar getBackToVillageTime(Troop troop) {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.SECOND, (int) (getDistance() * troop.getWalkingDurationSeconds() * 2));
+		return c;
+	}
+
 	public FarmButton getaButton() {
 		return aButton;
 	}
-	public void setaButton(FarmButton aButton) {
-		this.aButton = aButton;
-	}
+
 	public FarmButton getbButton() {
 		return bButton;
 	}
-	public void setbButton(FarmButton bButton) {
-		this.bButton = bButton;
-	}
+
 	public FarmButton getcButton() {
 		return cButton;
 	}
-	public void setcButton(FarmButton cButton) {
-		this.cButton = cButton;
-	}
+
 	public WebElement getReallyPointLink() {
 		return reallyPointLink;
 	}
-	public void setReallyPointLink(WebElement reallyPointLink) {
-		this.reallyPointLink = reallyPointLink;
+
+	public ReportStatus getFarmStatus() {
+		return reportStatus;
 	}
-	public int getFarmStatus() {
-		return farmStatus;
-	}
-	public void setFarmStatus(int farmStatus) {
-		this.farmStatus = farmStatus;
-	}
+
 	public boolean isMaxLoot() {
 		return maxLoot;
-	}
-	public void setMaxLoot(boolean maxLoot) {
-		this.maxLoot = maxLoot;
 	}
 }

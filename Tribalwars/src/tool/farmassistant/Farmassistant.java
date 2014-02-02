@@ -1,5 +1,8 @@
 package tool.farmassistant;
 
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+
 import java.awt.Point;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,8 +27,10 @@ import config.Configuration;
 import tool.Site;
 import utile.Helper;
 import utile.Highlighter;
+import utile.ReportStatus;
 import utile.ResourceBundleUtil;
 import utile.Troop;
+import utile.Troop1;
 
 public class Farmassistant extends Site {
 
@@ -129,25 +134,25 @@ public class Farmassistant extends Site {
 		}
 	}
 
-	public Map<String, Integer> getAvailableTroops() {
+	public Map<Troop, Integer> getAvailableTroops() {
 		List<WebElement> troopAmounts = findElement(By.id("units_home")).findElements(By.cssSelector("td.unit-item,td.unit-item hidden"));
-		Map<String, Integer> availableTroops = new HashMap<String, Integer>();
+		Map<Troop, Integer> availableTroops = new HashMap<Troop, Integer>();
 
 		for (WebElement troopAmount : troopAmounts) {
-			availableTroops.put(troopAmount.getAttribute("id"), Integer.parseInt(troopAmount.getText()));
+			availableTroops.put(Troop.convertTroopIdToTroop(troopAmount.getAttribute("id")), Integer.parseInt(troopAmount.getText()));
 		}
 
 		return availableTroops;
 	}
 
-	private Map<String, Integer> getAtemplateTroops(int templateNumber) {
+	private Map<Troop, Integer> getAtemplateTroops(int templateNumber) {
 		List<WebElement> inputs = findElements(By.tagName("form")).get(templateNumber).findElements(By.xpath(".//input[@type='text']"));
 		System.out.println(inputs.size());
-		Map<String, Integer> aTemplateTroops = new HashMap<String, Integer>();
+		Map<Troop, Integer> aTemplateTroops = new HashMap<Troop, Integer>();
 
 		for (WebElement input : inputs) {
 			try {
-				aTemplateTroops.put(input.getAttribute("name"), Integer.valueOf(input.getAttribute("value")));
+				aTemplateTroops.put(Troop.convertTroopIdToTroop(input.getAttribute("name")), Integer.valueOf(input.getAttribute("value")));
 			} catch (java.lang.NumberFormatException e) {
 				System.out.println("\"" + input.getAttribute("value") + "\" konnte nicht in eine Zahl umgewandelt werden");
 				e.printStackTrace();
@@ -157,11 +162,11 @@ public class Farmassistant extends Site {
 		return aTemplateTroops;
 	}
 
-	public Map<String, Integer> getAtemplateTroops() {
+	public Map<Troop, Integer> getAtemplateTroops() {
 		return getAtemplateTroops(0);
 	}
 
-	public Map<String, Integer> getBtemplateTroops() {
+	public Map<Troop, Integer> getBtemplateTroops() {
 		return getAtemplateTroops(1);
 	}
 
@@ -183,15 +188,15 @@ public class Farmassistant extends Site {
 
 	private void setTemplateTroops(int templateNumber, int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
 		Map<String, Integer> troopAmounts = new HashMap<String, Integer>();
-		troopAmounts.put(Troop.SPEAR_NAME, spear);
-		troopAmounts.put(Troop.SWORD_NAME, sword);
-		troopAmounts.put(Troop.AXE_NAME, axe);
-		troopAmounts.put(Troop.ARCHER_NAME, archer);
-		troopAmounts.put(Troop.SPY_NAME, spy);
-		troopAmounts.put(Troop.LIGHT_NAME, light);
-		troopAmounts.put(Troop.MARCHER_NAME, marcher);
-		troopAmounts.put(Troop.HEAVY_NAME, heavy);
-		troopAmounts.put(Troop.KNIGHT_NAME, knight);
+		troopAmounts.put(Troop1.SPEAR_NAME, spear);
+		troopAmounts.put(Troop1.SWORD_NAME, sword);
+		troopAmounts.put(Troop1.AXE_NAME, axe);
+		troopAmounts.put(Troop1.ARCHER_NAME, archer);
+		troopAmounts.put(Troop1.SPY_NAME, spy);
+		troopAmounts.put(Troop1.LIGHT_NAME, light);
+		troopAmounts.put(Troop1.MARCHER_NAME, marcher);
+		troopAmounts.put(Troop1.HEAVY_NAME, heavy);
+		troopAmounts.put(Troop1.KNIGHT_NAME, knight);
 		setTemplateTroops(templateNumber, troopAmounts);
 	}
 	
@@ -255,8 +260,6 @@ public class Farmassistant extends Site {
 	}
 	
 	public FarmEntry[] getFarmEntries() {
-		long before = System.nanoTime();
-
 		List<WebElement> tableRows = getFarmEntriesTable().findElements(By.cssSelector(".row_a,.row_b"));
 		FarmEntry[] farmEntries = new FarmEntry[tableRows.size()];
 		for (int i = 0; i < tableRows.size(); i++) {
@@ -266,30 +269,33 @@ public class Farmassistant extends Site {
 			WebElement deleteButton = rowCells.get(0).findElement(By.tagName("a"));
 			// FARM_STATUS
 			String farmStatusImageSrc = rowCells.get(1).findElement(By.tagName("img")).getAttribute("src");
-			int farmStatus = -1;
-			if (farmStatusImageSrc.contains("green")) {
-				farmStatus = FarmEntry.FARMSTATUS_GREEN;
-			} else if (farmStatusImageSrc.contains("yellow")) {
-				farmStatus = FarmEntry.FARMSTATUS_YELLOW;
-			} else if (farmStatusImageSrc.contains("red")) {
-				farmStatus = FarmEntry.FARMSTATUS_RED;
-			} else if (farmStatusImageSrc.contains("blue")) {
-				farmStatus = FarmEntry.FARMSTATUS_BLUE;
-			}
+			ReportStatus reportStatus = ReportStatus.stringContainsReportStatusColor(farmStatusImageSrc);
 			// MAX_LOOT
-			String maxLootImageSrc = rowCells.get(2).findElement(By.tagName("img")).getAttribute("src");
+			List<WebElement> maxLootImage = rowCells.get(2).findElements(By.tagName("img"));
 			boolean maxLoot = false;
-			if (maxLootImageSrc.contains("0.png")) {
-				maxLoot = false;
-			} else if (maxLootImageSrc.contains("1.png")) {
-				maxLoot = true;
+			// Wenn das Barbarendorf nur gespäht wurde, gibt es kein MaxLoot image
+			if (maxLootImage.size() > 0) {
+				String maxLootImageSrc = maxLootImage.get(0).getAttribute("src");
+				if (maxLootImageSrc.contains("0.png")) {
+					maxLoot = false;
+				} else if (maxLootImageSrc.contains("1.png")) {
+					maxLoot = true;
+				}
 			}
+			
 			// VILLAGE_LINK & VILLAGE_COORD
 			WebElement villageLink = rowCells.get(3).findElement(By.tagName("a"));
 
 			String[] villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
 			Point villageCoord = new Point(Integer.valueOf(villageCoordArray[0]), Integer.valueOf(villageCoordArray[1]));
 
+			// ATTACKS
+			int attacks = 0;
+			List<WebElement> attackImage = rowCells.get(3).findElements(By.tagName("img"));
+			if (attackImage.size() > 0) {
+				attacks = 1;
+			}
+			
 			// LAST_FARMING_TIME
 			String lastFarmingTimeString = rowCells.get(4).getText();
 			Date lastFarmingTime = parseLastFarmingStringToDate(lastFarmingTimeString);
@@ -328,28 +334,9 @@ public class Farmassistant extends Site {
 			WebElement reallyPointLink = rowCells.get(11).findElement(By.tagName("a"));
 
 			// Initialize FarmEntry
-			FarmEntry farmEntry = new FarmEntry();
-			farmEntry.setDeleteButton(deleteButton);
-			farmEntry.setFarmStatus(farmStatus);
-			farmEntry.setMaxLoot(maxLoot);
-			farmEntry.setVillageCoord(villageCoord);
-			farmEntry.setVillageLink(villageLink);
-			farmEntry.setLastFarmingTime(lastFarmingTime);
-			farmEntry.setWood(wood);
-			farmEntry.setClay(clay);
-			farmEntry.setIron(iron);
-			farmEntry.setWallLevel(wallLevel);
-			farmEntry.setDistance(distance);
-			farmEntry.setaButton(aButton);
-			farmEntry.setbButton(bButton);
-			farmEntry.setcButton(cButton);
-			farmEntry.setReallyPointLink(reallyPointLink);
-
+			FarmEntry farmEntry = new FarmEntry(deleteButton, reportStatus, maxLoot, villageLink, attacks, villageCoord, lastFarmingTime, wood, clay, iron, wallLevel, distance, aButton, bButton, cButton, reallyPointLink);
 			farmEntries[i] = farmEntry;
 		}
-
-		long after = System.nanoTime() - before;
-		System.out.println(after);
 		return farmEntries;
 	}
 
@@ -387,6 +374,15 @@ public class Farmassistant extends Site {
 			goToSite();
 		} else {
 			System.out.println("Es gibt keine nächste Seite mehr");
+		}
+	}
+	
+	public void goToPage(int pPageNumber) {
+		if (pPageNumber > 0 && pPageNumber <= getAmountOfPages()) {
+			this.urlParameters.put("Farm_page", String.valueOf(pPageNumber-1));
+			goToSite();
+		} else {
+			System.out.println("Der Farmassistent hat kein " + pPageNumber + " Seiten");
 		}
 	}
 	

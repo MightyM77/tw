@@ -18,4 +18,10 @@ public class FarmButton {
 	public boolean enabled() {
 		return this.enabled;
 	}
+	
+	public void click() {
+		if (getFarmButton() != null) {
+			getFarmButton().click();
+		}
+	}
 }

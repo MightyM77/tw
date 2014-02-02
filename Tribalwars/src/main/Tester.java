@@ -1,6 +1,7 @@
 package main;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -13,9 +14,14 @@ import org.openqa.selenium.WebDriver;
 import tool.farmassistant.Farmassistant;
 import tool.headquarters.Building;
 import tool.headquarters.Headquarters;
+import tool.reports.ReportEntry;
+import tool.reports.Reports;
+import tool.reports.Submenu;
 import utile.Helper;
+import utile.ReportStatus;
 import utile.ResourceBundleUtil;
 import utile.Troop;
+import utile.Troop1;
 
 public class Tester {
 
@@ -63,6 +69,8 @@ public class Tester {
 				}
 			}
 			
+			hq.renameVillage("00000001");
+			
 			
 		}
 	}
@@ -79,37 +87,37 @@ public class Tester {
 		Helper.getInstance().sleep(3);
 // Momentane Truppen des A-Templates
 		System.out.println("A-Template Truppen:");
-		Map<String, Integer> aTemplateTroops = fm.getAtemplateTroops();
-		Iterator<Entry<String, Integer>> iterator = aTemplateTroops.entrySet().iterator();
+		Map<Troop, Integer> aTemplateTroops = fm.getAtemplateTroops();
+		Iterator<Entry<Troop, Integer>> iterator = aTemplateTroops.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<String, Integer> pairs = (Map.Entry<String, Integer>) iterator.next();
-			System.out.println(ResourceBundleUtil.getGeneralBundleString(pairs.getKey()) + ": " + pairs.getValue());
+			Map.Entry<Troop, Integer> pairs = (Map.Entry<Troop, Integer>) iterator.next();
+			System.out.println(ResourceBundleUtil.getGeneralBundleString(pairs.getKey().getId()) + ": " + pairs.getValue());
 		}
 		System.out.println("-------------------------------------------------------------");
 		Helper.getInstance().sleep(3);
 // Momentane Truppen des B-Templates
 		System.out.println("B-Template Truppen:");
-		Map<String, Integer> bTemplateTroops = fm.getBtemplateTroops();
+		Map<Troop, Integer> bTemplateTroops = fm.getBtemplateTroops();
 		iterator = bTemplateTroops.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<String, Integer> pairs = (Map.Entry<String, Integer>) iterator.next();
-			System.out.println(ResourceBundleUtil.getGeneralBundleString(pairs.getKey()) + ": " + pairs.getValue());
+			Map.Entry<Troop, Integer> pairs = (Map.Entry<Troop, Integer>) iterator.next();
+			System.out.println(ResourceBundleUtil.getGeneralBundleString(pairs.getKey().getId()) + ": " + pairs.getValue());
 		}
 		System.out.println("-------------------------------------------------------------");
 		Helper.getInstance().sleep(3);
 // Momentan verfügbare Truppen
 		System.out.println("Momentan verfügbare Truppen:");
-		Map<String, Integer> availableTemplateTroops = fm.getAvailableTroops();
+		Map<Troop, Integer> availableTemplateTroops = fm.getAvailableTroops();
 		iterator = availableTemplateTroops.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<String, Integer> pairs = (Map.Entry<String, Integer>) iterator.next();
-			System.out.println(ResourceBundleUtil.getGeneralBundleString(pairs.getKey()) + ": " + pairs.getValue());
+			Map.Entry<Troop, Integer> pairs = (Map.Entry<Troop, Integer>) iterator.next();
+			System.out.println(ResourceBundleUtil.getGeneralBundleString(pairs.getKey().getId()) + ": " + pairs.getValue());
 		}
 		System.out.println("-------------------------------------------------------------");
 		Helper.getInstance().sleep(3);
 // Alle Truppen zum Farmen verfügbar machen
 		System.out.println("Alle Truppen zum Farmen verfügbar machen...");
-		String[] availableTroops = new String[] {Troop.ARCHER_NAME, Troop.AXE_NAME, Troop.HEAVY_NAME, Troop.KNIGHT_NAME, Troop.LIGHT_NAME, Troop.MARCHER_NAME, Troop.SPEAR_NAME, Troop.SPY_NAME, Troop.SWORD_NAME};
+		String[] availableTroops = new String[] {Troop1.ARCHER_NAME, Troop1.AXE_NAME, Troop1.HEAVY_NAME, Troop1.KNIGHT_NAME, Troop1.LIGHT_NAME, Troop1.MARCHER_NAME, Troop1.SPEAR_NAME, Troop1.SPY_NAME, Troop1.SWORD_NAME};
 		fm.setAvailableTroops(availableTroops);
 		System.out.println("-------------------------------------------------------------");
 
@@ -147,5 +155,36 @@ public class Tester {
 		Helper.getInstance().sleep(3);
 		System.out.println("Nach Distanz abwärts sortieren");
 		fm.sortByDistanceAbwaerts();
+	}
+
+	public void reportsTester() {
+		Reports reports = new Reports(driver);
+		reports.goToSite();
+		
+		List<ReportEntry> reportEntries = new ArrayList<ReportEntry>();
+		
+		for (int i : reports.getReportIds()) {
+			reportEntries.add(reports.getReport(i));
+		}
+		
+		for (ReportEntry re : reportEntries) {
+			System.out.println("------------------------------------");
+			System.out.println("ID: " + re.getId());
+			System.out.println("Name: " + re.getName());
+			System.out.println("Received: " + re.getReceivedDate());
+		}
+		
+		reports.goToSubmenu(Submenu.SUBMENU_ATTACKS);
+		reports.setFilter(ReportStatus.SOME_LOSSES);
+		reports.filterByReportName("barbarian");
+		reports.setOnlyFullHauls(true);
+		reports.setOnlyOwnReports(true);
+		reports.setOnlyReportsForThisVill(true);
+		reports.setReportsPerPage(50);
+		reports.clickDeleteBtn();
+		reports.getReport(11454865).setSelectState(true);
+		reports.forwardSelectedReports("Wagenheber");
+		reports.setFilterToAllTypes();
+		reports.resetAllFilters();
 	}
 }

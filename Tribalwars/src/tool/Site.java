@@ -1,6 +1,8 @@
 package tool;
 
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +24,8 @@ public class Site {
 
 	protected Map<String, String> urlParameters = new HashMap<String, String>();
 	protected WebDriverWait wait;
-
+	protected SimpleDateFormat someDateFormat = new SimpleDateFormat();
+	
 	public Site(String pFile, String screen, WebDriver pDriver) {
 		this.file = pFile;
 		this.driver = pDriver;
@@ -60,7 +63,25 @@ public class Site {
 		return currentUrlParameters;
 	}
 
+	private void checkForBotProtection() {
+		List<WebElement> botElement = driver().findElements(By.id("bot_check"));
+		if (botElement.size() > 0) {
+			System.exit(0);
+		}
+//		while (botElement.size() > 0) {
+//			System.out.println("!!!BOTPROTECTION GEFUNDEN!!!");
+//			botElement = driver().findElements(By.id("bot_check"));
+//			Toolkit.getDefaultToolkit().beep();
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+	}
+	
 	protected WebElement findElement(By by) {
+		checkForBotProtection();
 		WebElement results = null;
 		long end = System.currentTimeMillis() + 5000;
 		while (System.currentTimeMillis() < end) {
@@ -73,6 +94,7 @@ public class Site {
 	}
 
 	protected List<WebElement> findElements(By by) {
+		checkForBotProtection();
 		List<WebElement> results = null;
 		long end = System.currentTimeMillis() + 5000;
 		while (System.currentTimeMillis() < end) {

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -33,8 +34,6 @@ public class Headquarters extends Site {
 	public static final String STABLE = "stable";
 	public static final String WORKSHOP = "garage";
 	public static final String ACADEMY = "snob";
-
-	private SimpleDateFormat someDateFormat = new SimpleDateFormat();
 
 	public Headquarters(WebDriver pDriver) {
 		super("/game.php", "main", pDriver);
@@ -192,5 +191,16 @@ public class Headquarters extends Site {
 			buildings.add(createBuildingFromTrElement(buildingTr));
 		}
 		return buildings;
+	}
+
+	public void renameVillage(String newName) {
+		WebElement nameInput = findElement(By.xpath("//input[@type='text' and @name='name']"));
+		if (newName.length() <= Integer.valueOf(nameInput.getAttribute("maxlength"))){
+			nameInput.sendKeys(Keys.chord(Keys.CONTROL, "a"), newName);
+			findElement(By.xpath("//input[@type=submit and @value='" + ResourceBundleUtil.getHeadquartersBundleString("change") +"']")).click();
+		} else {
+			System.out.println("Der Dorfname darf maximal " + nameInput.getAttribute("maxlength") + " Zeichen lang sein, der angegeben Wert ist jedoch " + newName.length() + " Zeichen lang");
+		}
+		
 	}
 }

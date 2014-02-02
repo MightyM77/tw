@@ -9,6 +9,8 @@ public class ResourceBundleUtil {
 	private static final String GENERAL_BUNDLE = "resourcebundle.GeneralBundle";
 	private static final String FARMASSISTANT_BUNDLE = "resourcebundle.FarmassistantBundle";
 	private static final String HEADQUARTERS_BUNDLE = "resourcebundle.HeadquartersBundle";
+	private static final String REPORTS_BUNDLE = "resourcebundle.ReportsBundle";
+	private static final String BARRACKS_BUNDLE = "resourcebundle.BarracksBundle";
 	
 	private ResourceBundleUtil() {
 		
@@ -24,5 +26,13 @@ public class ResourceBundleUtil {
 	
 	public static String getHeadquartersBundleString(String key) {
 		return ResourceBundle.getBundle(HEADQUARTERS_BUNDLE, Configuration.LOCALE).getString(key);
+	}
+	
+	public static String getReportsBundleString(String key) {
+		return ResourceBundle.getBundle(REPORTS_BUNDLE, Configuration.LOCALE).getString(key);
+	}
+	
+	public static String getBarracksBundleString(String key) {
+		return ResourceBundle.getBundle(BARRACKS_BUNDLE, Configuration.LOCALE).getString(key);
 	}
 }
