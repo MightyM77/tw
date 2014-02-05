@@ -6,20 +6,20 @@ import java.util.List;
 
 import org.openqa.selenium.WebDriver;
 
+import config.Configuration;
+
 public abstract class Procedure{
 
-	private final WebDriver driver;
 	private final Calendar activationTime;
 	
-	public Procedure(WebDriver pDriver, Calendar pActivationTime) {
-		this.driver = pDriver;
+	public Procedure(Calendar pActivationTime) {
 		this.activationTime = pActivationTime;
 	}
 	
 	public abstract List<Procedure> doAction();
 	
 	protected WebDriver driver() {
-		return this.driver;
+		return Configuration.DRIVER;
 	}
 	
 	public Calendar getActivationTime() {

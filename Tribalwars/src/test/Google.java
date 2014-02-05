@@ -14,8 +14,8 @@ public class Google extends Site {
 
 	WebElement test = null;
 	
-	public Google(WebDriver pDriver) {
-		super("", "", pDriver);
+	public Google() {
+		super("", "");
 	}
 	
 	@Override

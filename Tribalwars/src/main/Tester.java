@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
 
+import config.Configuration;
 import tool.farmassistant.Farmassistant;
 import tool.headquarters.Building;
 import tool.headquarters.Headquarters;
@@ -21,19 +22,20 @@ import utile.Helper;
 import utile.ReportStatus;
 import utile.ResourceBundleUtil;
 import utile.Troop;
-import utile.Troop1;
 
 public class Tester {
 
-	private WebDriver driver;
 	private SimpleDateFormat someDateFormat = new SimpleDateFormat();
 	
-	public Tester(WebDriver pDriver) {
-		this.driver = pDriver;
+	public Tester() {
+	}
+	
+	private WebDriver driver() {
+		return Configuration.DRIVER;
 	}
 	
 	public void headquartersTest() {
-		Headquarters hq = new Headquarters(driver);
+		Headquarters hq = new Headquarters();
 		hq.goToSite();
 		
 		List<Building> buildings = hq.getAvailableBuildings();
@@ -76,7 +78,7 @@ public class Tester {
 	}
 	
 	public void farmAssistantTest() {
-		Farmassistant fm = new Farmassistant(driver);
+		Farmassistant fm = Farmassistant.getInstance();
 		fm.goToSite();
 
 // Mögliche Beute der Templates
@@ -117,7 +119,7 @@ public class Tester {
 		Helper.getInstance().sleep(3);
 // Alle Truppen zum Farmen verfügbar machen
 		System.out.println("Alle Truppen zum Farmen verfügbar machen...");
-		String[] availableTroops = new String[] {Troop1.ARCHER_NAME, Troop1.AXE_NAME, Troop1.HEAVY_NAME, Troop1.KNIGHT_NAME, Troop1.LIGHT_NAME, Troop1.MARCHER_NAME, Troop1.SPEAR_NAME, Troop1.SPY_NAME, Troop1.SWORD_NAME};
+		String[] availableTroops = new String[] {Troop.ARCHER.getId(), Troop.AXE.getId(), Troop.HEAVY.getId(), Troop.PALADIN.getId(), Troop.LIGHT.getId(), Troop.MARCHER.getId(), Troop.SPEAR.getId(), Troop.SPY.getId(), Troop.SWORD.getId()};
 		fm.setAvailableTroops(availableTroops);
 		System.out.println("-------------------------------------------------------------");
 
@@ -158,7 +160,7 @@ public class Tester {
 	}
 
 	public void reportsTester() {
-		Reports reports = new Reports(driver);
+		Reports reports = Reports.getInstance();
 		reports.goToSite();
 		
 		List<ReportEntry> reportEntries = new ArrayList<ReportEntry>();

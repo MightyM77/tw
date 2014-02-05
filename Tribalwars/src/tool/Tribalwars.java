@@ -11,8 +11,14 @@ import utile.ResourceBundleUtil;
 
 public class Tribalwars extends Site {
 	
-	public Tribalwars(WebDriver pDriver) {
-		super("", "", pDriver);
+	private final static Tribalwars INSTANCE = new Tribalwars();
+	
+	private Tribalwars() {
+		super("", "");
+	}
+	
+	public static Tribalwars getInstance() {
+		return Tribalwars.INSTANCE;
 	}
 	
 	@Override

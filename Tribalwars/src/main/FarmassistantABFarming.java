@@ -11,19 +11,21 @@ import org.openqa.selenium.WebDriver;
 
 import tool.farmassistant.FarmEntry;
 import tool.farmassistant.Farmassistant;
+import utile.ReportStatus;
 import utile.Troop;
 
 public class FarmassistantABFarming extends Procedure {
 
+	public static int farmDurchgaenge = 0;
 	private final Farmassistant fa;
-	private final static int BASE_TIMOUT_AFTER_FARMBTN_CLICK = 200;
-	private final static int RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK = 700;
+	private final static int BASE_TIMOUT_AFTER_FARMBTN_CLICK = 100;
+	private final static int RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK = 400;
 	private final static Random RANDOM_GENERATOR = new Random();
-	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 5;
+	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 30;
 
-	public FarmassistantABFarming(WebDriver pDriver, Calendar pActivationTime) {
-		super(pDriver, pActivationTime);
-		this.fa = new Farmassistant(driver());
+	public FarmassistantABFarming(Calendar pActivationTime) {
+		super(pActivationTime);
+		this.fa = Farmassistant.getInstance();
 	}
 
 	/**
@@ -56,7 +58,7 @@ public class FarmassistantABFarming extends Procedure {
 		Troop slowestTroop = getSlowestTroop(troops);
 		Calendar troopsBack = fe.getBackToVillageTime(slowestTroop);
 		troopsBack.add(Calendar.SECOND, ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK);
-		return new FarmassistantABFarming(driver(), troopsBack);
+		return new FarmassistantABFarming(troopsBack);
 	}
 
 	@Override
@@ -82,16 +84,17 @@ public class FarmassistantABFarming extends Procedure {
 				availableTroops = fa.getAvailableTroops();
 				// Wenn das BB entweder noch nicht angegriffen wird oder wenn es
 				// der 2te durchlauf ist
-				if (fe.getAttacks() == 0 || !firstRun) {
+				if (fe.getFarmStatus().equals(ReportStatus.NO_LOSSES) && fe.getAttacks() == 0 || !firstRun) {
 					if (fe.getbButton().enabled() && enoughTroops(bTemplateTroops, availableTroops)) {
 						System.out.println("Klicke B-Button");
-						triggeringProcedures.add(createFarmassistantABFarming(fe, bTemplateTroops));
 						fe.getbButton().click();
-
+						triggeringProcedures.add(createFarmassistantABFarming(fe, bTemplateTroops));
+						FarmassistantABFarming.farmDurchgaenge++;
 					} else if (fe.getaButton().enabled() && enoughTroops(aTemplateTroops, availableTroops)) {
 						System.out.println("Klicke A-Button");
-						triggeringProcedures.add(createFarmassistantABFarming(fe, aTemplateTroops));
 						fe.getaButton().click();
+						triggeringProcedures.add(createFarmassistantABFarming(fe, aTemplateTroops));
+						FarmassistantABFarming.farmDurchgaenge++;
 					} else {
 						System.out.println("Stoppe farmen da keine Truppen mehr vorhanden sind");
 						enoughTroops = false;
@@ -112,7 +115,8 @@ public class FarmassistantABFarming extends Procedure {
 				firstRun = false;
 			}
 		}
-
+		
+		System.out.println("Farmdurchgänge: " + FarmassistantABFarming.farmDurchgaenge);
 		return triggeringProcedures;
 	}
 }

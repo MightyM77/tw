@@ -1,13 +1,9 @@
 package tool.farmassistant;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
 import java.awt.Point;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,29 +13,28 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import config.Configuration;
 import tool.Site;
-import utile.Helper;
-import utile.Highlighter;
 import utile.ReportStatus;
 import utile.ResourceBundleUtil;
 import utile.Troop;
-import utile.Troop1;
 
 public class Farmassistant extends Site {
 
+	private static final Farmassistant INSTANCE = new Farmassistant();
 	private SimpleDateFormat someDateFormat = new SimpleDateFormat();
 	private String dateformat = ResourceBundleUtil.getFarmassistantBundleString("dateformat");;
 	private String timeformat = ResourceBundleUtil.getFarmassistantBundleString("timeformat");
 	
-	public Farmassistant(WebDriver pDriver) {
-		super("/game.php", "am_farm", pDriver);
+	private Farmassistant() {
+		super("/game.php", "am_farm");
+	}
+	
+	public static Farmassistant getInstance() {
+		return Farmassistant.INSTANCE;
 	}
 
 	private Date parseLastFarmingStringToDate(String lastFarmingTimeString) {
@@ -147,7 +142,6 @@ public class Farmassistant extends Site {
 
 	private Map<Troop, Integer> getAtemplateTroops(int templateNumber) {
 		List<WebElement> inputs = findElements(By.tagName("form")).get(templateNumber).findElements(By.xpath(".//input[@type='text']"));
-		System.out.println(inputs.size());
 		Map<Troop, Integer> aTemplateTroops = new HashMap<Troop, Integer>();
 
 		for (WebElement input : inputs) {
@@ -188,15 +182,15 @@ public class Farmassistant extends Site {
 
 	private void setTemplateTroops(int templateNumber, int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
 		Map<String, Integer> troopAmounts = new HashMap<String, Integer>();
-		troopAmounts.put(Troop1.SPEAR_NAME, spear);
-		troopAmounts.put(Troop1.SWORD_NAME, sword);
-		troopAmounts.put(Troop1.AXE_NAME, axe);
-		troopAmounts.put(Troop1.ARCHER_NAME, archer);
-		troopAmounts.put(Troop1.SPY_NAME, spy);
-		troopAmounts.put(Troop1.LIGHT_NAME, light);
-		troopAmounts.put(Troop1.MARCHER_NAME, marcher);
-		troopAmounts.put(Troop1.HEAVY_NAME, heavy);
-		troopAmounts.put(Troop1.KNIGHT_NAME, knight);
+		troopAmounts.put(Troop.SPEAR.getId(), spear);
+		troopAmounts.put(Troop.SWORD.getId(), sword);
+		troopAmounts.put(Troop.AXE.getId(), axe);
+		troopAmounts.put(Troop.ARCHER.getId(), archer);
+		troopAmounts.put(Troop.SPY.getId(), spy);
+		troopAmounts.put(Troop.LIGHT.getId(), light);
+		troopAmounts.put(Troop.MARCHER.getId(), marcher);
+		troopAmounts.put(Troop.HEAVY.getId(), heavy);
+		troopAmounts.put(Troop.PALADIN.getId(), knight);
 		setTemplateTroops(templateNumber, troopAmounts);
 	}
 	
@@ -370,7 +364,7 @@ public class Farmassistant extends Site {
 
 	public void nextPage() {
 		if (hasNextPage()) {
-			this.urlParameters.put("Farm_page", String.valueOf(getCurrentPageNumber()+1));
+			this.urlParameters.put("Farm_page", String.valueOf(getCurrentPageNumber()));
 			goToSite();
 		} else {
 			System.out.println("Es gibt keine nächste Seite mehr");

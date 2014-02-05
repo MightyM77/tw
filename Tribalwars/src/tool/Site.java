@@ -20,23 +20,21 @@ import config.Configuration;
 public class Site {
 
 	private String file;
-	private WebDriver driver;
 
 	protected Map<String, String> urlParameters = new HashMap<String, String>();
 	protected WebDriverWait wait;
 	protected SimpleDateFormat someDateFormat = new SimpleDateFormat();
 	
-	public Site(String pFile, String screen, WebDriver pDriver) {
+	public Site(String pFile, String screen) {
 		this.file = pFile;
-		this.driver = pDriver;
-		this.wait = new WebDriverWait(driver, 10);
+		this.wait = new WebDriverWait(driver(), 10);
 		if (screen.length() > 0) {
 			this.urlParameters.put("screen", screen);
 		}
 	}
 
 	protected WebDriver driver() {
-		return this.driver;
+		return Configuration.DRIVER;
 	}
 
 	public void goToSite() {
@@ -49,12 +47,12 @@ public class Site {
 			url += pairs.getKey() + "=" + pairs.getValue() + "&";
 		}
 		url = url.substring(0, url.length());
-		this.driver.get(url);
+		this.driver().get(url);
 	}
 
 	public Map<String, String> getCurrentUrlsParameters() {
 		Map<String, String> currentUrlParameters = new HashMap<String, String>();
-		String[] currentUrlParametersString = driver.getCurrentUrl().split("\\?")[1].split("&");
+		String[] currentUrlParametersString = driver().getCurrentUrl().split("\\?")[1].split("&");
 		String[] keyVal;
 		for (String parameter : currentUrlParametersString) {
 			keyVal = parameter.split("=");
@@ -65,19 +63,19 @@ public class Site {
 
 	private void checkForBotProtection() {
 		List<WebElement> botElement = driver().findElements(By.id("bot_check"));
-		if (botElement.size() > 0) {
-			System.exit(0);
-		}
-//		while (botElement.size() > 0) {
-//			System.out.println("!!!BOTPROTECTION GEFUNDEN!!!");
-//			botElement = driver().findElements(By.id("bot_check"));
-//			Toolkit.getDefaultToolkit().beep();
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+//		if (botElement.size() > 0) {
+//			System.exit(0);
 //		}
+		while (botElement.size() > 0) {
+			System.out.println("!!!BOTPROTECTION GEFUNDEN!!!");
+			botElement = driver().findElements(By.id("bot_check"));
+			Toolkit.getDefaultToolkit().beep();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	protected WebElement findElement(By by) {
@@ -85,7 +83,7 @@ public class Site {
 		WebElement results = null;
 		long end = System.currentTimeMillis() + 5000;
 		while (System.currentTimeMillis() < end) {
-			results = driver.findElement(by);
+			results = driver().findElement(by);
 			if (results.isDisplayed()) {
 				break;
 			}
@@ -98,7 +96,7 @@ public class Site {
 		List<WebElement> results = null;
 		long end = System.currentTimeMillis() + 5000;
 		while (System.currentTimeMillis() < end) {
-			results = driver.findElements(by);
+			results = driver().findElements(by);
 			if (results.size() > 0) {
 				break;
 			}
@@ -146,7 +144,7 @@ public class Site {
 		return Integer.valueOf(findElement(By.id("rank_rank")).getText().replaceAll("[^0-9]", ""));
 	}
 
-	public Point getCurrentVillCoords() {
+	public Point getCoords() {
 		String text = findElement(By.xpath("//tr[@id='menu_row2']/td[@class='box-item']/b[@class='nowrap']")).getText();
 		text = text.substring(1, 8);
 		String[] splitText = text.split("\\|");

@@ -8,8 +8,8 @@ import tool.Site;
 
 public class Tribalwars extends Site {
 
-	public Tribalwars(WebDriver pDriver) {
-		super("", "", pDriver);
+	public Tribalwars() {
+		super("", "");
 	}
 
 	@Override

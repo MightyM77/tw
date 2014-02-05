@@ -1,7 +1,6 @@
 package tool.headquarters;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,11 +12,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import tool.Site;
-import utile.Highlighter;
 import utile.ResourceBundleUtil;
 
 public class Headquarters extends Site {
 
+	private static final Headquarters INSTANCE = new Headquarters();
+	
 	public static final String HEADQUARTERS = "main";
 	public static final String BARRACKS = "barracks";
 	public static final String SMITHY = "smith";
@@ -31,12 +31,16 @@ public class Headquarters extends Site {
 	public static final String WAREHOUSE = "storage";
 	public static final String HIDING_PLACE = "hide";
 	public static final String WALL = "wall";
-	public static final String STABLE = "stable";
+	public static final String STABLE = "stabl8e";
 	public static final String WORKSHOP = "garage";
 	public static final String ACADEMY = "snob";
 
-	public Headquarters(WebDriver pDriver) {
-		super("/game.php", "main", pDriver);
+	public Headquarters() {
+		super("/game.php", "main");
+	}
+	
+	public static Headquarters getInstance() {
+		return Headquarters.INSTANCE;
 	}
 
 	private Date parseResourcesAvailableTextToDate(String resourcesAvailableText) {

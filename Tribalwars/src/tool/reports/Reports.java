@@ -18,13 +18,19 @@ import utile.ResourceBundleUtil;
 
 public class Reports extends Site {
 
+	private static final Reports INSTANCE = new Reports();
+	
 	public static final int FOLDER_ALL = -1;
 	public static final int FOLDER_NEW = 0;
 
-	public Reports(WebDriver pDriver) {
-		super("/game.php", "report", pDriver);
+	private Reports() {
+		super("/game.php", "report");
 	}
 
+	public static Reports getInstance() {
+		return Reports.INSTANCE;
+	}
+	
 	public void goToSubmenu(Submenu submenu) {
 		String submenuName = submenu.getSubmenuName();
 		if (Submenu.contains(submenuName)) {

@@ -1,7 +1,9 @@
 package main;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -9,10 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
 
-import tool.Barracks;
 import tool.Tribalwars;
 import tool.farmassistant.FarmEntry;
 import tool.farmassistant.Farmassistant;
+import tool.recruitment.Barracks;
+import utile.Building;
 import utile.Troop;
 import config.Configuration;
 
@@ -25,24 +28,41 @@ public class Ablauf {
 		driver.manage().timeouts().pageLoadTimeout(20, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 
-		Tribalwars tw = new Tribalwars(driver);
+		Tribalwars tw = Tribalwars.getInstance();
 		tw.goToSite();
 		tw.login();
 
+		Calendar time1 = Calendar.getInstance();
+		Calendar time2 = Calendar.getInstance();
+		Calendar time3 = Calendar.getInstance();
+		Calendar time4 = Calendar.getInstance();
+		
+		time1.add(Calendar.MINUTE, 15);
+		time2.add(Calendar.MINUTE, 30);
+		time3.add(Calendar.MINUTE, 45);
+		time4.add(Calendar.MINUTE, 60);
+		
 		List<Procedure> procedures = new ArrayList<Procedure>();
-		procedures.add(new FarmassistantABFarming(driver, Calendar.getInstance(Configuration.LOCALE)));
+		procedures.add(new FarmassistantABFarming(Calendar.getInstance(Configuration.LOCALE)));
+		procedures.add(new FarmassistantABFarming(time1));
+		procedures.add(new FarmassistantABFarming(time2));
+		procedures.add(new FarmassistantABFarming(time3));
+		procedures.add(new FarmassistantABFarming(time4));
+		procedures.add(new MaxRecruitment(Calendar.getInstance(Configuration.LOCALE), Building.STABLE, Troop.LIGHT));
+		
+//		Map<Troop, Integer> troopsAmount = new HashMap<Troop, Integer>();
+//		troopsAmount.put(Troop.LIGHT, 1);
+//		Point coords = new Point(493,498);
+//		procedures.add(new KeepAttackingVillage(driver, Calendar.getInstance(), troopsAmount, coords));
 		
 		while (true) {
-			System.out.println("----------------------------------------------------------------------");
 			for (int i = 0; i < procedures.size(); i++) {
-				System.out.println(procedures.get(i).getActivationTime().getTime());
 				if (procedures.get(i).getActivationTime().compareTo(Calendar.getInstance(Configuration.LOCALE)) <= 0) {
 					procedures.addAll(procedures.get(i).doAction());
 					procedures.remove(i);
 					i--;
 				}
 			}
-			System.out.println("----------------------------------------------------------------------");
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
