@@ -1,27 +1,17 @@
 package tool.farmassistant;
-import org.openqa.selenium.WebElement;
 
-public class FarmButton {
-
-	private WebElement farmButton;
-	private boolean enabled;
+public enum FarmButton {
+	A (0),
+	B (1),
+	C (2);
 	
-	public FarmButton(WebElement pFarmButton, boolean pEnabled) {
-		this.farmButton = pFarmButton;
-		this.enabled = pEnabled;
+	final int index;
+	
+	private FarmButton(int pIndex) {
+		this.index = pIndex;
 	}
 	
-	public WebElement getFarmButton() {
-		return this.farmButton;
-	}
-	
-	public boolean enabled() {
-		return this.enabled;
-	}
-	
-	public void click() {
-		if (getFarmButton() != null) {
-			getFarmButton().click();
-		}
+	public int getIndex() {
+		return this.index;
 	}
 }

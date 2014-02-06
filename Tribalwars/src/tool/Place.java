@@ -11,11 +11,8 @@ import java.util.Map.Entry;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.internal.seleniumemulation.GetXpathCount;
 
-import utile.ResourceBundleUtil;
 import utile.Troop;
 
 public class Place extends Site {

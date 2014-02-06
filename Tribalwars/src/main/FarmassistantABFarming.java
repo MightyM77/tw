@@ -1,64 +1,64 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.openqa.selenium.WebDriver;
-
 import tool.farmassistant.FarmEntry;
+import tool.farmassistant.FarmTemplate;
 import tool.farmassistant.Farmassistant;
 import utile.ReportStatus;
 import utile.Troop;
+import utile.TroopTemplate;
 
 public class FarmassistantABFarming extends Procedure {
 
 	public static int farmDurchgaenge = 0;
+
 	private final Farmassistant fa;
+	private final ReportStatus[] onlyThoseReportStatus;
+	private final FarmTemplate[] onlyThoseFarmTemplates;
+
 	private final static int BASE_TIMOUT_AFTER_FARMBTN_CLICK = 100;
 	private final static int RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK = 400;
 	private final static Random RANDOM_GENERATOR = new Random();
-	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 30;
+	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 10;
 
-	public FarmassistantABFarming(Calendar pActivationTime) {
+	public FarmassistantABFarming(Calendar pActivationTime, ReportStatus[] pOnlyThoseReportStatus, FarmTemplate... pFarmTemplates) {
 		super(pActivationTime);
 		this.fa = Farmassistant.getInstance();
+		this.onlyThoseReportStatus = pOnlyThoseReportStatus;
+		this.onlyThoseFarmTemplates = pFarmTemplates;
 	}
 
-	/**
-	 * 
-	 * @param troops
-	 * @return die langsamste Einheit der gegebenen Einheiten von welchen mehr
-	 *         als 0 vorhanden sind
-	 */
-	private Troop getSlowestTroop(Map<Troop, Integer> troops) {
-		List<Troop> troopsToCompare = new ArrayList<Troop>();
-		for (Troop troop : troops.keySet()) {
-			if (troops.get(troop) > 0) {
-				troopsToCompare.add(troop);
-			}
-		}
-		Troop[] troopsToCompareArray = new Troop[troopsToCompare.size()];
-		return Troop.getSlowestTroop(troopsToCompare.toArray(troopsToCompareArray));
+	private ReportStatus[] getOnlyThoseReportStatus() {
+		return this.onlyThoseReportStatus;
 	}
 
-	private boolean enoughTroops(Map<Troop, Integer> bTemplateTroops, Map<Troop, Integer> availableTroops) {
-		for (Troop troopKey : bTemplateTroops.keySet()) {
-			if (availableTroops.get(troopKey) < bTemplateTroops.get(troopKey)) {
+	private FarmTemplate[] getOnlyThoseFarmTemplates() {
+		return this.onlyThoseFarmTemplates;
+	}
+
+	private boolean enoughTroops(TroopTemplate bTemplateTroops, TroopTemplate availableTroops) {
+		Map<Troop, Integer> availableTroopsMap = availableTroops.getAllTroops();
+		Map<Troop, Integer> bTemplateTroopsMap = bTemplateTroops.getAllTroops();
+		for (Troop troopKey : bTemplateTroopsMap.keySet()) {
+			if (availableTroopsMap.get(troopKey) < bTemplateTroopsMap.get(troopKey)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	private FarmassistantABFarming createFarmassistantABFarming(FarmEntry fe, Map<Troop, Integer> troops) {
-		Troop slowestTroop = getSlowestTroop(troops);
+	private FarmassistantABFarming createFarmassistantABFarming(FarmEntry fe, TroopTemplate troops) {
+		Troop slowestTroop = troops.getSlowestTroop();
 		Calendar troopsBack = fe.getBackToVillageTime(slowestTroop);
 		troopsBack.add(Calendar.SECOND, ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK);
-		return new FarmassistantABFarming(troopsBack);
+		return new FarmassistantABFarming(troopsBack, getOnlyThoseReportStatus(), getOnlyThoseFarmTemplates());
 	}
 
 	@Override
@@ -68,43 +68,39 @@ public class FarmassistantABFarming extends Procedure {
 		fa.goToSite();
 		fa.goToPage(1);
 
-		Map<Troop, Integer> aTemplateTroops = fa.getAtemplateTroops();
-		Map<Troop, Integer> bTemplateTroops = fa.getBtemplateTroops();
-		Map<Troop, Integer> availableTroops;
+		TroopTemplate availableTroops;
+		Map<FarmTemplate, TroopTemplate> templateTroops = new HashMap<FarmTemplate, TroopTemplate>();
+		for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
+			templateTroops.put(farmTemplate, fa.getTemplateTroops(farmTemplate));
+		}
 
 		boolean enoughTroops = true;
 		boolean firstRun = true;
 		System.out.println("Lese Farmeinträge aus");
-		FarmEntry[] fes;
 
 		System.out.println("Iteriere durch Farmeinträge");
 		while (enoughTroops) {
-			fes = fa.getFarmEntries();
-			for (FarmEntry fe : fes) {
+			for (int i = 0; i < fa.getFarmEntriesCount(); i++) {
+				FarmEntry fe = fa.getFarmEntry(i);
 				availableTroops = fa.getAvailableTroops();
-				// Wenn das BB entweder noch nicht angegriffen wird oder wenn es
-				// der 2te durchlauf ist
-				if (fe.getFarmStatus().equals(ReportStatus.NO_LOSSES) && fe.getAttacks() == 0 || !firstRun) {
-					if (fe.getbButton().enabled() && enoughTroops(bTemplateTroops, availableTroops)) {
-						System.out.println("Klicke B-Button");
-						fe.getbButton().click();
-						triggeringProcedures.add(createFarmassistantABFarming(fe, bTemplateTroops));
-						FarmassistantABFarming.farmDurchgaenge++;
-					} else if (fe.getaButton().enabled() && enoughTroops(aTemplateTroops, availableTroops)) {
-						System.out.println("Klicke A-Button");
-						fe.getaButton().click();
-						triggeringProcedures.add(createFarmassistantABFarming(fe, aTemplateTroops));
-						FarmassistantABFarming.farmDurchgaenge++;
-					} else {
-						System.out.println("Stoppe farmen da keine Truppen mehr vorhanden sind");
-						enoughTroops = false;
-						break;
+				enoughTroops = false;
+				if (Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getFarmStatus()) && !fe.isGettingAttacked() || !firstRun) {
+					for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
+						if (fe.isFarmButtonEnabled(farmTemplate) && enoughTroops(templateTroops.get(farmTemplate), availableTroops)) {
+							System.out.println("Klicke " + farmTemplate.name() + "-Button");
+							fe.clickFarmButton(farmTemplate.convertToFarmButton());
+							triggeringProcedures.add(createFarmassistantABFarming(fe, templateTroops.get(farmTemplate)));
+							enoughTroops = true;
+							FarmassistantABFarming.farmDurchgaenge++;
+							try {
+								Thread.sleep(BASE_TIMOUT_AFTER_FARMBTN_CLICK + RANDOM_GENERATOR.nextInt(RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK));
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
 					}
-					try {
-						Thread.sleep(BASE_TIMOUT_AFTER_FARMBTN_CLICK + RANDOM_GENERATOR.nextInt(RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK));
-					} catch (InterruptedException e) {
-						System.out.println("Sleep failure (bei der Farmassitent Prozedur)");
-						e.printStackTrace();
+					if (!enoughTroops) {
+						break;
 					}
 				}
 			}
@@ -115,8 +111,7 @@ public class FarmassistantABFarming extends Procedure {
 				firstRun = false;
 			}
 		}
-		
-		System.out.println("Farmdurchgänge: " + FarmassistantABFarming.farmDurchgaenge);
+		System.out.println(Calendar.getInstance().getTime() + " Farmdurchgänge: " + FarmassistantABFarming.farmDurchgaenge);
 		return triggeringProcedures;
 	}
 }

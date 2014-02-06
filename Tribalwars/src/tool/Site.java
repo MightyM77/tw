@@ -37,6 +37,11 @@ public class Site {
 		return Configuration.DRIVER;
 	}
 
+	public int getIncomingAmount() {
+		WebElement incomingAmountSpan = findElement(By.id("incomings_amount"));
+		return Integer.valueOf(incomingAmountSpan.getText().replaceAll("[^0-9]", ""));
+	}
+	
 	public void goToSite() {
 
 		String url = Configuration.LOCALE.getCountry() + Configuration.WORLD + "." + ResourceBundleUtil.getGeneralBundleString("hostname") + this.file + "?";
