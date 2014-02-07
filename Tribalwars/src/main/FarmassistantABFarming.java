@@ -23,7 +23,7 @@ public class FarmassistantABFarming extends Procedure {
 	private final ReportStatus[] onlyThoseReportStatus;
 	private final FarmTemplate[] onlyThoseFarmTemplates;
 
-	private final static int BASE_TIMOUT_AFTER_FARMBTN_CLICK = 100;
+	private final static int BASE_TIMEOUT_AFTER_FARMBTN_CLICK = 100;
 	private final static int RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK = 400;
 	private final static Random RANDOM_GENERATOR = new Random();
 	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 10;
@@ -94,7 +94,7 @@ public class FarmassistantABFarming extends Procedure {
 							enoughTroops = true;
 							FarmassistantABFarming.farmDurchgaenge++;
 							try {
-								Thread.sleep(BASE_TIMOUT_AFTER_FARMBTN_CLICK + RANDOM_GENERATOR.nextInt(RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK));
+								Thread.sleep(BASE_TIMEOUT_AFTER_FARMBTN_CLICK + RANDOM_GENERATOR.nextInt(RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK));
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
