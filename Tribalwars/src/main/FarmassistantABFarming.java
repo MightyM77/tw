@@ -83,8 +83,9 @@ public class FarmassistantABFarming extends Procedure {
 			for (int i = 0; i < fa.getFarmEntriesCount(); i++) {
 				FarmEntry fe = fa.getFarmEntry(i);
 				availableTroops = fa.getAvailableTroops();
-				enoughTroops = false;
-				if (Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getFarmStatus()) && !fe.isGettingAttacked() || !firstRun) {
+				enoughTroops = true;
+				if (Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getFarmStatus()) && (!fe.isGettingAttacked() || !firstRun)) {
+					enoughTroops = false;
 					for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
 						if (fe.isFarmButtonEnabled(farmTemplate) && enoughTroops(templateTroops.get(farmTemplate), availableTroops)) {
 							System.out.println("Klicke " + farmTemplate.name() + "-Button");

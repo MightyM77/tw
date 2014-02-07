@@ -11,8 +11,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.openqa.jetty.jetty.servlet.SessionManager.Session;
-
 public class GoogleMail {
 	private GoogleMail() {
 	}

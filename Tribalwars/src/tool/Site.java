@@ -9,11 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import utile.GoogleMail;
 import utile.ResourceBundleUtil;
 import config.Configuration;
 
@@ -24,7 +28,7 @@ public class Site {
 	protected Map<String, String> urlParameters = new HashMap<String, String>();
 	protected WebDriverWait wait;
 	protected SimpleDateFormat someDateFormat = new SimpleDateFormat();
-	
+
 	public Site(String pFile, String screen) {
 		this.file = pFile;
 		this.wait = new WebDriverWait(driver(), 10);
@@ -41,7 +45,7 @@ public class Site {
 		WebElement incomingAmountSpan = findElement(By.id("incomings_amount"));
 		return Integer.valueOf(incomingAmountSpan.getText().replaceAll("[^0-9]", ""));
 	}
-	
+
 	public void goToSite() {
 
 		String url = Configuration.LOCALE.getCountry() + Configuration.WORLD + "." + ResourceBundleUtil.getGeneralBundleString("hostname") + this.file + "?";
@@ -68,10 +72,24 @@ public class Site {
 
 	private void checkForBotProtection() {
 		List<WebElement> botElement = driver().findElements(By.id("bot_check"));
-//		if (botElement.size() > 0) {
-//			System.exit(0);
-//		}
+		// if (botElement.size() > 0) {
+		// System.exit(0);
+		// }
+
+		int emailsSent = 0;
 		while (botElement.size() > 0) {
+			if (emailsSent < 1) {
+				try {
+					GoogleMail.Send(Configuration.SENDER_EMAIL, Configuration.SENDER_EMAIL_PW, Configuration.RECIPIENT_EMAIL, "PROTECTION", "Protection aufgetaucht");
+				} catch (AddressException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				emailsSent++;
+			}
 			System.out.println("!!!BOTPROTECTION GEFUNDEN!!!");
 			botElement = driver().findElements(By.id("bot_check"));
 			Toolkit.getDefaultToolkit().beep();
@@ -82,7 +100,7 @@ public class Site {
 			}
 		}
 	}
-	
+
 	protected WebElement findElement(By by) {
 		checkForBotProtection();
 		WebElement results = null;
@@ -136,7 +154,7 @@ public class Site {
 	public int getCurrenPopulation() {
 		return Integer.valueOf(findElement(By.id("pop_current_label")).getText());
 	}
-	
+
 	public int getMaxPopulation() {
 		return Integer.valueOf(findElement(By.id("pop_max_label")).getText());
 	}
@@ -144,7 +162,7 @@ public class Site {
 	public int getRankPoints() {
 		return Integer.valueOf(findElement(By.id("rank_points")).getText());
 	}
-	
+
 	public int getRank() {
 		return Integer.valueOf(findElement(By.id("rank_rank")).getText().replaceAll("[^0-9]", ""));
 	}

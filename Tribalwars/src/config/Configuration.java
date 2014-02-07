@@ -16,6 +16,10 @@ public class Configuration {
 	public static final String USERNAME = "MightyM";
 	public static final String PASSWORD = "dakommstenetrein";
 	
+	public static final String SENDER_EMAIL = "mike.noethiger7";
+	public static final String SENDER_EMAIL_PW = "sony:1967";
+	public static final String RECIPIENT_EMAIL = "noethiger.mike@gmail.com";
+	
 	public static final WebDriver DRIVER = new FirefoxDriver();
 	
 	private Configuration() {

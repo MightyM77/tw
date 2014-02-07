@@ -2,15 +2,20 @@ package main;
 
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import org.openqa.selenium.WebDriver;
 
 import tool.Tribalwars;
 import tool.farmassistant.FarmTemplate;
 import utile.Building;
+import utile.GoogleMail;
 import utile.ReportStatus;
 import utile.Troop;
 import config.Configuration;
@@ -38,7 +43,7 @@ public class Ablauf {
 		time4.add(Calendar.MINUTE, 60);
 		
 		FarmTemplate[] farmTemplatesToClick = new FarmTemplate[] {FarmTemplate.A, FarmTemplate.B};
-		ReportStatus[] onlyThoseReportStatus = new ReportStatus[] {ReportStatus.NO_LOSSES, ReportStatus.SCOUT_ATTACK};
+		ReportStatus[] onlyThoseReportStatus = new ReportStatus[] {ReportStatus.NO_LOSSES};
 		
 		List<Procedure> procedures = new ArrayList<Procedure>();
 		procedures.add(new FarmassistantABFarming(Calendar.getInstance(Configuration.LOCALE), onlyThoseReportStatus, farmTemplatesToClick));
@@ -46,22 +51,69 @@ public class Ablauf {
 		procedures.add(new FarmassistantABFarming(time2, onlyThoseReportStatus, farmTemplatesToClick));
 		procedures.add(new FarmassistantABFarming(time3, onlyThoseReportStatus, farmTemplatesToClick));
 		procedures.add(new FarmassistantABFarming(time4, onlyThoseReportStatus, farmTemplatesToClick));
-		procedures.add(new MaxRecruitment(Calendar.getInstance(Configuration.LOCALE), Building.STABLE, Troop.LIGHT));
+//		procedures.add(new MaxRecruitment(Calendar.getInstance(Configuration.LOCALE), Building.STABLE, Troop.LIGHT));
 		
 //		Map<Troop, Integer> troopsAmount = new HashMap<Troop, Integer>();
 //		troopsAmount.put(Troop.LIGHT, 1);
 //		Point coords = new Point(493,498);
 //		procedures.add(new KeepAttackingVillage(driver, Calendar.getInstance(), troopsAmount, coords));
 		
+		Ablauf ablauf = new Ablauf(procedures);
+		ablauf.start();
+		
+//		try {
+//			while (true) {
+//				for (int i = 0; i < procedures.size(); i++) {
+//					if (procedures.get(i).getActivationTime().compareTo(Calendar.getInstance(Configuration.LOCALE)) <= 0) {
+//						procedures.addAll(procedures.get(i).doAction());
+//						procedures.remove(i);
+//						i--;
+//					}
+//				}
+//				try {
+//					Thread.sleep(1000);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.out.println("Anzahl Elemente in procedures: " + procedures.size());
+////			try {
+////				GoogleMail.Send("noethiger.mike", "samsung;1968", "noethiger.mike@gmail.com", "FAILURE", "You're program failed");
+////			} catch (AddressException e2) {
+////				// TODO Auto-generated catch block
+////				e2.printStackTrace();
+////			} catch (MessagingException e3) {
+////				// TODO Auto-generated catch block
+////				e3.printStackTrace();
+////			}
+//			
+//			while (true) {
+//				Toolkit.getDefaultToolkit().beep();
+//				try {
+//					Thread.sleep(1000);
+//				} catch (InterruptedException e2) {
+//					e2.printStackTrace();
+//				}
+//			}
+//		}
+	}
+	
+	private List<Procedure> procedures = new ArrayList<Procedure>();
+	
+	public Ablauf(List<Procedure> procedures) {
+		this.procedures = procedures;
+	}
+	
+	public Ablauf(Procedure... procedures) {
+		this(Arrays.asList(procedures));
+	}
+	
+	public void start() {
 		try {
 			while (true) {
-				for (int i = 0; i < procedures.size(); i++) {
-					if (procedures.get(i).getActivationTime().compareTo(Calendar.getInstance(Configuration.LOCALE)) <= 0) {
-						procedures.addAll(procedures.get(i).doAction());
-						procedures.remove(i);
-						i--;
-					}
-				}
+				executeReadyProcedure();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -70,14 +122,32 @@ public class Ablauf {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("Anzahl Elemente in procedures: " + procedures.size());
+			try {
+				GoogleMail.Send(Configuration.SENDER_EMAIL, Configuration.SENDER_EMAIL_PW, Configuration.RECIPIENT_EMAIL, "FAILURE", e.getMessage());
+			} catch (AddressException e2) {
+				e2.printStackTrace();
+			} catch (MessagingException e3) {
+				e3.printStackTrace();
+			}
 			
-			while (true) {
-				Toolkit.getDefaultToolkit().beep();
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e2) {
-					e2.printStackTrace();
-				}
+//			while (true) {
+//				Toolkit.getDefaultToolkit().beep();
+//				try {
+//					Thread.sleep(1000);
+//				} catch (InterruptedException e2) {
+//					e2.printStackTrace();
+//				}
+//			}
+		}
+	}
+	
+	public void executeReadyProcedure() {
+		for (int i = 0; i < procedures.size(); i++) {
+			if (procedures.get(i).getActivationTime().compareTo(Calendar.getInstance(Configuration.LOCALE)) <= 0) {
+				procedures.addAll(procedures.get(i).doAction());
+				procedures.remove(i);
+				i--;
 			}
 		}
 	}
