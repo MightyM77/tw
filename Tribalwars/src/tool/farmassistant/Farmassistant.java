@@ -79,7 +79,6 @@ public class Farmassistant extends Site {
 	}
 
 	private void setCheckboxState(WebElement checkbox, boolean state) {
-		wait.until(ExpectedConditions.elementToBeClickable(checkbox));
 		if (state && !checkbox.isSelected()) {
 			checkbox.click();
 		} else if (!state && checkbox.isSelected()) {

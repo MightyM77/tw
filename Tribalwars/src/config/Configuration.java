@@ -23,7 +23,7 @@ public class Configuration {
 	public static final WebDriver DRIVER = new FirefoxDriver();
 	
 	private Configuration() {
-		
+		// HIDDEN CLASS
 	}
 	
 	static {
