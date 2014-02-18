@@ -19,8 +19,8 @@ import utile.TroopTemplate;
 
 public class Farmassistant extends Site {
 
-	private static final Farmassistant INSTANCE = new Farmassistant();
-
+	private static final Farmassistant INSTANCE = new Farmassistant(); 
+	
 	private Farmassistant() {
 		super("/game.php", "am_farm");
 	}

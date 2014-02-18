@@ -3,6 +3,7 @@ package utile;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
+import java.awt.Point;
 import java.util.List;
 
 public enum Troop {
@@ -15,7 +16,10 @@ public enum Troop {
 	LIGHT ("light", 600),
 	MARCHER ("marcher", 600),
 	HEAVY ("heavy", 660),
-	PALADIN ("knight", 600);
+	PALADIN ("knight", 600),
+	RAM ("ram", 1800),
+	CATAPULT ("catapult", 1800),
+	NOBLE ("snob", 2100);
 	
 	private String id;
 	private int walkingDurationSeconds;
@@ -51,6 +55,14 @@ public enum Troop {
 			}
 		}
 		return slowestUnit;
+	}
+	
+	public int getWalkingDurationSeconds(Point coord1, Point coord2) {
+		double x = coord1.getX() - coord2.getX();
+		double y = coord1.getY() - coord2.getY();
+		
+		double fields = Math.sqrt((x*x) + (y*y));
+		return (int) Math.round(getWalkingDurationSeconds()*fields);
 	}
 	
 	public String getId() {

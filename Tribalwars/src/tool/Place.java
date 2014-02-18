@@ -76,8 +76,8 @@ public class Place extends Site {
 	}
 	
 	private void setCoords(Point coords) {
-		getInputX().sendKeys(Keys.chord(Keys.CONTROL, "a"), String.valueOf(coords.getX()));
-		getInputY().sendKeys(Keys.chord(Keys.CONTROL, "a"), String.valueOf(coords.getY()));
+		getInputX().sendKeys(Keys.chord(Keys.CONTROL, "a"), String.valueOf((int) coords.getX()));
+		getInputY().sendKeys(Keys.chord(Keys.CONTROL, "a"), String.valueOf((int) coords.getY()));
 	}
 	
 	private WebElement getGoBtn() {
@@ -98,6 +98,19 @@ public class Place extends Site {
 		return Integer.valueOf(getTroopLink(troop).getText().replaceAll("[^0-9]", ""));
 	}
 	
+ 	// FIXME muss noch angepasst werden das es für alle Welten passt (da einige archer haben andere nicht)
+ 	public boolean isSomeUnitPresent() {
+ 		boolean someUnitPresent = false;
+ 		for (Troop troop : Troop.values()) {
+ 			if (troop != Troop.ARCHER && troop != Troop.MARCHER) {
+ 				if (getTroopAmount(troop) > 0) {
+ 					someUnitPresent = true;
+ 				}
+ 			}
+ 		}
+ 		return someUnitPresent;
+ 	}
+ 	
 	public void attack(Map<Troop, Integer> troopsAmount, Point coords) {
 		setTroops(troopsAmount);
 		setCoords(coords);

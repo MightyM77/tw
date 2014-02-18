@@ -1,7 +1,11 @@
 package utile;
 
+import java.util.Calendar;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import config.Configuration;
 
 public final class Helper {
 
@@ -30,5 +34,18 @@ public final class Helper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public String getClassName(Class<?> clazz) {
+		Class<?> enclosingClass = clazz.getEnclosingClass();
+		if (enclosingClass != null) {
+			return enclosingClass.getName();
+		} else {
+		  return clazz.getSimpleName();
+		}
+	}
+	
+	public Calendar getCalendar() {
+		return Calendar.getInstance(Configuration.TIME_ZONE);
 	}
 }

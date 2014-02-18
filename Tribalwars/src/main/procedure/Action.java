@@ -1,4 +1,4 @@
-package main;
+package main.procedure;
 
 public interface Action {
 

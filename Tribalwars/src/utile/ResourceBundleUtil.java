@@ -11,6 +11,7 @@ public class ResourceBundleUtil {
 	private static final String HEADQUARTERS_BUNDLE = "resourcebundle.HeadquartersBundle";
 	private static final String REPORTS_BUNDLE = "resourcebundle.ReportsBundle";
 	private static final String BARRACKS_BUNDLE = "resourcebundle.BarracksBundle";
+	private static final String INCOMING_BUNDLE = "resourcebundle.IncomingBundle";
 	
 	private ResourceBundleUtil() {
 		
@@ -34,5 +35,9 @@ public class ResourceBundleUtil {
 	
 	public static String getBarracksBundleString(String key) {
 		return ResourceBundle.getBundle(BARRACKS_BUNDLE, Configuration.LOCALE).getString(key);
+	}
+	
+	public static String getIncomingBundleString(String key) {
+		return ResourceBundle.getBundle(INCOMING_BUNDLE, Configuration.LOCALE).getString(key);
 	}
 }

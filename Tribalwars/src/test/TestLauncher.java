@@ -1,35 +1,30 @@
 package test;
 
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-
-import config.Configuration;
-import utile.GameHelper;
-import utile.GoogleMail;
-import utile.Troop;
+import tool.farmassistant.FarmTemplate;
+import utile.ReportStatus;
+import main.procedure.FarmassistantFarming;
+import main.procedure.Procedure;
 
 public class TestLauncher {
 
 	public static void main(String[] args) {
-		
-//		try {
-//			while (true) {
-//				int i = Integer.valueOf("a");
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			while (true) {
-//				Toolkit.getDefaultToolkit().beep();
-//				try {
-//					Thread.sleep(1000);
-//				} catch (InterruptedException e2) {
-//					e2.printStackTrace();
-//				}
-//			}
-//		}
+		List<Procedure> procedures = new ArrayList<Procedure>();
+		FarmTemplate[] farmTemplatesToClick = new FarmTemplate[] { FarmTemplate.A, FarmTemplate.B };
+		ReportStatus[] onlyThoseReportStatus = new ReportStatus[] { ReportStatus.NO_LOSSES };
+		for (int i = 0; i < 100000; i++) {
+			procedures.add(new FarmassistantFarming(Calendar.getInstance(), onlyThoseReportStatus, farmTemplatesToClick));
+			System.out.println("Memory used: " + Runtime.getRuntime().totalMemory());
+			System.out.println("Free Memory: " + Runtime.getRuntime().freeMemory());
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

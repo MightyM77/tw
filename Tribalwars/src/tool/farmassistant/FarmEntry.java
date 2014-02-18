@@ -13,6 +13,8 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import config.Configuration;
+import utile.Highlighter;
 import utile.ReportStatus;
 import utile.ResourceBundleUtil;
 import utile.Troop;
@@ -27,36 +29,7 @@ public class FarmEntry {
 	private final static int WOOD_POSITION = 0;
 	private final static int CLAY_POSITION = 1;
 	private final static int IRON_POSITION = 2;
-	
-	private int clay;
-	private int wood;
-	private int iron;
-	private int wallLevel;
-	private double distance;
-	private FarmButton aButton;
-	private FarmButton bButton;
-	private FarmButton cButton;
-	private WebElement reallyPointLink;
 
-//	public FarmEntry(WebElement pDeleteButton, ReportStatus pReportStatus, boolean pMaxLoot, WebElement pVillageLink, int pAttacks, Point pVillageCoord, Date pLastFarmingTime, int pWood, int pClay, int pIron,
-//			int pWall, double pDistance, FarmButton pAbutton, FarmButton pBbutton, FarmButton pCbutton, WebElement pReallyPoint) {
-//		this.deleteButton = pDeleteButton;
-//		this.reportStatus = pReportStatus;
-//		this.maxLoot = pMaxLoot;
-//		this.villageLink = pVillageLink;
-//		this.attacks = pAttacks;
-//		this.villageCoord = pVillageCoord;
-//		this.lastFarmingTime = pLastFarmingTime;
-//		this.clay = pClay;
-//		this.wood = pWood;
-//		this.iron = pIron;
-//		this.wallLevel = pWall;
-//		this.distance = pDistance;
-//		this.aButton = pAbutton;
-//		this.bButton = pBbutton;
-//		this.cButton = pCbutton;
-//		this.reallyPointLink = pReallyPoint;
-//	}
 	public FarmEntry(WebElement row) {
 		assertThat(row.getTagName(), equalTo("tr"));
 		this.row = row;
@@ -116,7 +89,7 @@ public class FarmEntry {
 		return ReportStatus.stringContainsReportStatusColor(farmStatusImageSrc);
 	}
 
-	public Point getVillageCoord() {
+	public Point getCoord() {
 		WebElement villageLink = getColumn(3).findElement(By.tagName("a"));
 
 		String[] villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
@@ -124,6 +97,16 @@ public class FarmEntry {
 		return villageCoord;
 	}
 
+	public String attackTitle() {
+		boolean alreadyAttacking = false;
+		List<WebElement> attackImage = getColumn(3).findElements(By.tagName("img"));
+		if (attackImage.size() > 0) {
+			alreadyAttacking = true;
+		}
+		Highlighter.getInstance().highlightElement(Configuration.DRIVER, attackImage.get(0));
+		return attackImage.get(0).getAttribute("title");
+	}
+	
 	public boolean isGettingAttacked() {
 		boolean alreadyAttacking = false;
 		List<WebElement> attackImage = getColumn(3).findElements(By.tagName("img"));
