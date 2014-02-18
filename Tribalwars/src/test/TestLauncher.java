@@ -6,8 +6,8 @@ import java.util.List;
 
 import tool.farmassistant.FarmTemplate;
 import utile.ReportStatus;
-import main.procedure.FarmassistantFarming;
 import main.procedure.Procedure;
+import main.procedure.farming.FarmassistantFarming;
 
 public class TestLauncher {
 

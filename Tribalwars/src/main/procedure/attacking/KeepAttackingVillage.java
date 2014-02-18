@@ -1,4 +1,4 @@
-package main.procedure;
+package main.procedure.attacking;
 
 import java.awt.Point;
 import java.text.ParseException;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import main.procedure.Procedure;
 import tool.Place;
 import utile.Troop;
 import utile.TroopTemplate;
@@ -67,7 +68,7 @@ public class KeepAttackingVillage extends Procedure {
 				attackAgainTime.add(Calendar.SECOND, this.delayUntilAttackingAgainInSeconds);
 			}
 		} else {
-			attackAgainTime.add(Calendar.MINUTE, 10);
+			attackAgainTime.add(Calendar.MINUTE, 2);
 		}
 		
 		procedures.add(new KeepAttackingVillage(attackAgainTime, this.troopTemplate, this.targetCoords, this.delayUntilAttackingAgainInSeconds, this.attackAgainWhenTroopsAreBack));

@@ -1,4 +1,4 @@
-package main.procedure;
+package main.procedure.attacking;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import main.procedure.Procedure;
 
 import org.openqa.selenium.WebDriver;
 

@@ -25,7 +25,7 @@
 			<AppenderRef ref="Console" />
 		</Root>
 		<Logger name="MemoryLogger" level="debug">
-			<AppenderRef ref="File1" />
+			<AppenderRef ref="File1" level="debug"/>
 		</Logger>
 	</Loggers>
 </Configuration>

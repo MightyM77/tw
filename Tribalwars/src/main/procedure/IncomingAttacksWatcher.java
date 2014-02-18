@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import main.procedure.attacking.AttackVillage;
 import config.Configuration;
 import tool.Market;
 import tool.Overview;

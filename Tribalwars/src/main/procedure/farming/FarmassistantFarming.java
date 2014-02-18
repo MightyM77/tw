@@ -1,4 +1,4 @@
-package main.procedure;
+package main.procedure.farming;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import main.procedure.Procedure;
 import config.Configuration;
 import tool.farmassistant.FarmEntry;
 import tool.farmassistant.FarmTemplate;
@@ -20,8 +21,6 @@ import utile.TroopTemplate;
 public class FarmassistantFarming extends Procedure {
 
 	private static Map<Point, Integer> cachedAttacks = new HashMap<Point, Integer>();
-	private static int lastFarmEntryIndex = -1;
-	private static int lastFarmEntrySite = 1;
 	public static int gefarmteDoerfer = 0;
 
 	private final Farmassistant fa;
@@ -101,7 +100,6 @@ public class FarmassistantFarming extends Procedure {
 
 		boolean enoughTroops = true;
 		boolean firstRun = true;
-		int farmEntryIndex = lastFarmEntryIndex+1;
 		
 		while (enoughTroops) {
 			int farmEntriesCount = fa.getFarmEntriesCount();
@@ -122,10 +120,6 @@ public class FarmassistantFarming extends Procedure {
 									.getCoord().getY(), templateTroops.get(farmTemplate).getSlowestTroop().getId());
 //							triggeringProcedures.add(newFarmDurchgang);
 							FarmassistantFarming.gefarmteDoerfer++;
-							lastFarmEntrySite = fa.getCurrentPageNumber();
-							if (!fe.isFarmButtonEnabled(farmTemplate));{
-								lastFarmEntryIndex = i;
-							}
 							try {
 								Thread.sleep(BASE_TIMEOUT_AFTER_FARMBTN_CLICK + RANDOM_GENERATOR.nextInt(RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK));
 							} catch (InterruptedException e) {
@@ -139,7 +133,6 @@ public class FarmassistantFarming extends Procedure {
 					break;
 				}
 			}
-			farmEntryIndex = 0;
 			if (fa.hasNextPage() && enoughTroops) {
 				Configuration.LOGGER.info("Gehe zur nächsten Farmassistent Seite");
 				fa.nextPage();

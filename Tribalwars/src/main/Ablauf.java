@@ -12,11 +12,11 @@ import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
-import main.procedure.FarmassistantFarming;
 import main.procedure.IncomingAttacksWatcher;
-import main.procedure.KeepAttackingVillage;
 import main.procedure.KeepRecruitUnit;
 import main.procedure.Procedure;
+import main.procedure.attacking.KeepAttackingVillage;
+import main.procedure.farming.FarmassistantFarming;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,9 +72,32 @@ public class Ablauf {
 		
 		List<Procedure> procedures = new ArrayList<Procedure>();
 //		procedures.add(new IncomingAttacksWatcher(Calendar.getInstance(Configuration.TIME_ZONE)));
-//		TroopTemplate template1 = new TroopTemplate();
-//		template1.addTroopAmount(Troop.LIGHT, 1);
-//		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(484,496)));
+		TroopTemplate template1 = new TroopTemplate();
+		template1.addTroopAmount(Troop.LIGHT, 5);
+		
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(546,514), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(564,515), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(555,529), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(545,526), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(549,519), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(548,516), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(549,507), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(561,501), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(546,496), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template1, new Point(553,496), 7200));
+		
+		TroopTemplate template2 = new TroopTemplate();
+		template2.addTroopAmount(Troop.LIGHT, 2);
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(544,514), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(546,515), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(554,519), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(556,507), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(546,501), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(549,497), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(569,509), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(538,511), 7200));
+		procedures.add(new KeepAttackingVillage(Calendar.getInstance(), template2, new Point(540,512), 7200));
+		
 		procedures.add(new FarmassistantFarming(Calendar.getInstance(Configuration.LOCALE), onlyThoseReportStatus, farmTemplatesToClick));
 //		procedures.add(new FarmassistantFarming(time1, onlyThoseReportStatus, farmTemplatesToClick));
 //		procedures.add(new FarmassistantFarming(time2, onlyThoseReportStatus, farmTemplatesToClick));
