@@ -28,7 +28,7 @@ public class FarmassistantFarming extends Procedure {
 	private final FarmTemplate[] onlyThoseFarmTemplates;
 
 	private final static int BASE_TIMEOUT_AFTER_FARMBTN_CLICK = 100;
-	private final static int RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK = 400;
+	private final static int RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK = 200;
 	private final static Random RANDOM_GENERATOR = new Random();
 	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 30;
 
@@ -93,9 +93,7 @@ public class FarmassistantFarming extends Procedure {
 		Map<FarmTemplate, TroopTemplate> templateTroops = new HashMap<FarmTemplate, TroopTemplate>();
 		for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
 			TroopTemplate tt = fa.getTemplateTroops(farmTemplate);
-			//tt.addTroopAmount(Troop.LIGHT, -10);
 			templateTroops.put(farmTemplate, tt);
-//			templateTroops.get(farmTemplate).addTroopAmount(Troop.LIGHT, -10);
 		}
 
 		boolean enoughTroops = true;

@@ -32,7 +32,7 @@ import utile.Troop;
 import utile.TroopTemplate;
 import config.Configuration;
 
-public class Ablauf {
+public class Launcher {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -69,7 +69,7 @@ public class Ablauf {
 		FarmTemplate[] farmTemplatesToClick = new FarmTemplate[] { FarmTemplate.B };
 		ReportStatus[] onlyThoseReportStatus = new ReportStatus[] { ReportStatus.NO_LOSSES };
 
-
+		
 		List<Procedure> procedures = new ArrayList<Procedure>();
 //		procedures.add(new IncomingAttacksWatcher(Calendar.getInstance(Configuration.TIME_ZONE)));
 		
@@ -95,66 +95,5 @@ public class Ablauf {
 
 		Ablauf ablauf = new Ablauf(procedures);
 		ablauf.start();
-	}
-
-	private static final Logger MEMORY_LOGGER = LogManager.getLogger(Ablauf.class);
-	private List<Procedure> procedures = new ArrayList<Procedure>();
-
-	public Ablauf(List<Procedure> procedures) {
-		this.procedures = procedures;
-	}
-
-	public Ablauf(Procedure... procedures) {
-		this(Arrays.asList(procedures));
-	}
-
-	public void start() {
-		try {
-			while (true) {
-				executeReadyProcedure();
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (Exception | Error e) {
-			Configuration.LOGGER.error("Programm ist gefailed, in der procedures Liste befanden sich {} Objekte. Fehlermeldung: {}", procedures.size(), e.getMessage());
-			
-			if (Configuration.EMAIL_ON_EXCEPTION) {
-				try {
-					GoogleMail.Send(Configuration.SENDER_EMAIL, Configuration.SENDER_EMAIL_PW, Configuration.RECIPIENT_EMAIL, "FAILURE", e.getMessage());
-				} catch (AddressException e2) {
-					Configuration.LOGGER.error("E-Mail senden fehlgeschlagen, Fehlermeldung: {}", e2.getMessage());
-				} catch (MessagingException e3) {
-					Configuration.LOGGER.error("E-Mail senden fehlgeschlagen, Fehlermeldung: {}", e3.getMessage());
-				}
-			}
-			
-			
-			
-			if (Configuration.BING_ON_EXCEPTION) {
-				while (true) {
-					Toolkit.getDefaultToolkit().beep();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e2) {
-						e2.printStackTrace();
-					}
-				}
-			}
-		}
-	}
-
-	public void executeReadyProcedure() throws ParseException {
-		for (int i = 0; i < procedures.size(); i++) {
-			if (procedures.get(i).getActivationTime().compareTo(Calendar.getInstance(Configuration.LOCALE)) <= 0) {
-				procedures.addAll(procedures.get(i).doAction());
-				procedures.remove(i);
-				i--;
-				MEMORY_LOGGER.info("Memory used: " + Runtime.getRuntime().totalMemory());
-				MEMORY_LOGGER.info("Free Memory: " + Runtime.getRuntime().freeMemory());
-			}
-		}
 	}
 }

@@ -79,18 +79,16 @@ public class Site {
 		int emailsSent = 0;
 		while (botElement.size() > 0) {
 			if (emailsSent < 1) {
+				Configuration.LOGGER.warn("!!!!!!!!!!!!!!! BOTPROTECTION GEFUNDEN !!!!!!!!!!!!!!!");
 				try {
 					GoogleMail.Send(Configuration.SENDER_EMAIL, Configuration.SENDER_EMAIL_PW, Configuration.RECIPIENT_EMAIL, "PROTECTION", "Protection aufgetaucht");
 				} catch (AddressException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				emailsSent++;
 			}
-			System.out.println("!!!BOTPROTECTION GEFUNDEN!!!");
 			botElement = driver().findElements(By.id("bot_check"));
 			Toolkit.getDefaultToolkit().beep();
 			try {

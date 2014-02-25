@@ -23,6 +23,7 @@ public class Farmassistant extends Site {
 	
 	private Farmassistant() {
 		super("/game.php", "am_farm");
+		this.urlParameters.put("village", "2502");
 	}
 
 	public static Farmassistant getInstance() {

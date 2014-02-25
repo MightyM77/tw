@@ -7,17 +7,20 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Map.Entry;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
+import utile.Helper;
 import utile.Troop;
 
 public class Place extends Site {
 
 	private static final Place INSTANCE = new Place();
+	private final static Random RANDOM_GENERATOR = new Random();
 	
 	private Place() {
 		super("/game.php", "place");
@@ -91,6 +94,11 @@ public class Place extends Site {
 	
 	private void support() {
 		getSupportBtn().click();
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		getGoBtn().click();
 	}
 	
@@ -113,8 +121,23 @@ public class Place extends Site {
  	
 	public void attack(Map<Troop, Integer> troopsAmount, Point coords) {
 		setTroops(troopsAmount);
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		setCoords(coords);
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		attack();
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void attackWithAllTroops(Point coords) {
