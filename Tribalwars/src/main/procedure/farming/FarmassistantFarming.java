@@ -86,7 +86,7 @@ public class FarmassistantFarming extends Procedure {
 		Configuration.LOGGER.info("Starte Farmassistent Durchlauf");
 
 		List<Procedure> triggeringProcedures = new ArrayList<Procedure>();
-		fa.goToSite();
+		fa.goToSite(2502);
 		fa.goToPage(1);
 
 		TroopTemplate availableTroops;

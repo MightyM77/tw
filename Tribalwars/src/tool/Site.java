@@ -72,13 +72,11 @@ public class Site {
 
 	private void checkForBotProtection() {
 		List<WebElement> botElement = driver().findElements(By.id("bot_check"));
-		// if (botElement.size() > 0) {
-		// System.exit(0);
-		// }
 
 		int emailsSent = 0;
 		while (botElement.size() > 0) {
-			if (emailsSent < 1) {
+			Configuration.LOGGER.warn("Botprotection display value: " + botElement.get(0).getCssValue("display"));
+			if (Configuration.EMAIL_ON_EXCEPTION && emailsSent < 1) {
 				Configuration.LOGGER.warn("!!!!!!!!!!!!!!! BOTPROTECTION GEFUNDEN !!!!!!!!!!!!!!!");
 				try {
 					GoogleMail.Send(Configuration.SENDER_EMAIL, Configuration.SENDER_EMAIL_PW, Configuration.RECIPIENT_EMAIL, "PROTECTION", "Protection aufgetaucht");
@@ -90,9 +88,13 @@ public class Site {
 				emailsSent++;
 			}
 			botElement = driver().findElements(By.id("bot_check"));
-			Toolkit.getDefaultToolkit().beep();
+			
+			if (Configuration.BING_ON_BOT_PROTECTION) { 
+				Toolkit.getDefaultToolkit().beep(); 
+			}
+			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

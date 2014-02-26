@@ -12,7 +12,7 @@ public class Market extends Site {
 	private static final Market INSTANCE = new Market();
 	
 	private Market() {
-		super(".game.php", "market");
+		super("/game.php", "market");
 	}
 	
 	public static Market getInstance() {

@@ -13,17 +13,17 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import tool.Site;
+import tool.VillageSite;
 import utile.ResourceBundleUtil;
 import utile.Troop;
 import utile.TroopTemplate;
 
-public class Farmassistant extends Site {
+public class Farmassistant extends VillageSite {
 
 	private static final Farmassistant INSTANCE = new Farmassistant(); 
 	
 	private Farmassistant() {
-		super("/game.php", "am_farm");
-		this.urlParameters.put("village", "2502");
+		super("am_farm");
 	}
 
 	public static Farmassistant getInstance() {
