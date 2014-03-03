@@ -13,24 +13,27 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import config.Configuration;
 import utile.Highlighter;
 import utile.ReportStatus;
+import utile.Resource;
 import utile.ResourceBundleUtil;
 import utile.Troop;
+import config.TwConfiguration;
 
 public class FarmEntry {
-
-	private final WebElement row;
-	
-	private final static String DATEFORMAT = ResourceBundleUtil.getFarmassistantBundleString("dateformat");;
-	private final static String TIMEFORMAT = ResourceBundleUtil.getFarmassistantBundleString("timeformat");
-	
 	private final static int WOOD_POSITION = 0;
 	private final static int CLAY_POSITION = 1;
 	private final static int IRON_POSITION = 2;
-
-	public FarmEntry(WebElement row) {
+	
+	private final WebElement row;
+	private final String dateformat;
+	private final String timeformat;
+	private final TwConfiguration config;
+	
+	public FarmEntry(TwConfiguration pConfig, WebElement row) {
+		this.config = pConfig;
+		this.dateformat = ResourceBundleUtil.getFarmassistantBundleString("dateformat", config.getLocale());
+		this.timeformat = ResourceBundleUtil.getFarmassistantBundleString("timeformat", config.getLocale());
 		assertThat(row.getTagName(), equalTo("tr"));
 		this.row = row;
 	}
@@ -46,15 +49,15 @@ public class FarmEntry {
 	private Date parseLastFarmingStringToDate(String lastFarmingTimeString) {
 		Date finalLastFarmingTime = null;
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-		simpleDateFormat.applyPattern(DATEFORMAT);
-		lastFarmingTimeString = lastFarmingTimeString.replace(ResourceBundleUtil.getFarmassistantBundleString("today"), " " + simpleDateFormat.format(new Date()));
+		simpleDateFormat.applyPattern(dateformat);
+		lastFarmingTimeString = lastFarmingTimeString.replace(ResourceBundleUtil.getFarmassistantBundleString("today", config.getLocale()), " " + simpleDateFormat.format(new Date()));
 		lastFarmingTimeString = lastFarmingTimeString.replaceAll("[A-Za-z]", "");
 		lastFarmingTimeString = lastFarmingTimeString.replaceAll(" +", " ");
 		lastFarmingTimeString = lastFarmingTimeString.substring(1);
 		lastFarmingTimeString = lastFarmingTimeString.replace(" ", String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
 
 		try {
-			simpleDateFormat.applyPattern(DATEFORMAT + "yyyy" + TIMEFORMAT);
+			simpleDateFormat.applyPattern(dateformat + "yyyy" + timeformat);
 			finalLastFarmingTime = simpleDateFormat.parse(lastFarmingTimeString);
 		} catch (ParseException e) {
 			System.out.println("\"" + lastFarmingTimeString + "\" konnte nicht in ein Datum umgewandelt werden");
@@ -84,12 +87,12 @@ public class FarmEntry {
 	}
 	
 	
-	public ReportStatus getFarmStatus() {
+	public ReportStatus getReportStatus() {
 		String farmStatusImageSrc = getColumn(1).findElement(By.tagName("img")).getAttribute("src");
 		return ReportStatus.stringContainsReportStatusColor(farmStatusImageSrc);
 	}
 
-	public Point getCoord() {
+	public Point getDestCoord() {
 		WebElement villageLink = getColumn(3).findElement(By.tagName("a"));
 
 		String[] villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
@@ -103,7 +106,7 @@ public class FarmEntry {
 		if (attackImage.size() > 0) {
 			alreadyAttacking = true;
 		}
-		Highlighter.getInstance().highlightElement(Configuration.DRIVER, attackImage.get(0));
+		Highlighter.getInstance().highlightElement(config.getDriver(), attackImage.get(0));
 		return attackImage.get(0).getAttribute("title");
 	}
 	
@@ -136,16 +139,8 @@ public class FarmEntry {
 		return resource;
 	}
 	
-	public int getWood() {
-		return getResources(WOOD_POSITION);
-	}
-	
-	public int getClay() {
-		return getResources(CLAY_POSITION);
-	}
-
-	public int getIron() {
-		return getResources(IRON_POSITION);
+	public Resource getResources() {
+		return new Resource(getResources(WOOD_POSITION), getResources(CLAY_POSITION), getResources(IRON_POSITION));
 	}
 
 	public int getWallLevel() {
@@ -158,22 +153,10 @@ public class FarmEntry {
 		return wallLevel;
 	}
 
-	private double getDistance() {
+	public double getDistance() {
 		return Double.valueOf(getColumn(7).getText());
 	}
 	
-	public Calendar getArrivingDate(Troop troop) {
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.SECOND, (int) (getDistance() * troop.getWalkingDurationSeconds()));
-		return c;
-	}
-	
-	public Calendar getBackToVillageTime(Troop troop) {
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.SECOND, (int) (getDistance() * troop.getWalkingDurationSeconds() * 2));
-		return c;
-	}
-
 	private WebElement getFarmbutton(FarmButton farmButton) {
 		int farmButtonColumn = -1;
 		switch (farmButton) {
@@ -215,7 +198,7 @@ public class FarmEntry {
 	}
 	
 	public boolean isFarmButtonEnabled(FarmTemplate farmTemplate) {
-		return isFarmButtonEnabled(farmTemplate.convertToFarmButton());		
+		return isFarmButtonEnabled(FarmButton.valueOf(farmTemplate));		
 	}
 	
 	public void clickFarmButton(FarmButton withFarmButton) {

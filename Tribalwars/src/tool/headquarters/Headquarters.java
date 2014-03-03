@@ -8,16 +8,15 @@ import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import tool.Site;
 import utile.ResourceBundleUtil;
+import config.TwConfiguration;
 
 public class Headquarters extends Site {
 
-	private static final Headquarters INSTANCE = new Headquarters();
-	
+	// FIXME Konstanten können mit dem Building enum ersetzt werden
 	public static final String HEADQUARTERS = "main";
 	public static final String BARRACKS = "barracks";
 	public static final String SMITHY = "smith";
@@ -35,22 +34,18 @@ public class Headquarters extends Site {
 	public static final String WORKSHOP = "garage";
 	public static final String ACADEMY = "snob";
 
-	public Headquarters() {
-		super("/game.php", "main");
-	}
-	
-	public static Headquarters getInstance() {
-		return Headquarters.INSTANCE;
+	public Headquarters(TwConfiguration pConfig) {
+		super(pConfig, "/game.php", "main");
 	}
 
 	private Date parseResourcesAvailableTextToDate(String resourcesAvailableText) {
-		String dateformat = ResourceBundleUtil.getHeadquartersBundleString("dateformat");
+		String dateformat = ResourceBundleUtil.getHeadquartersBundleString("dateformat", config().getLocale());
 		;
-		String timeformat = ResourceBundleUtil.getHeadquartersBundleString("timeformat");
+		String timeformat = ResourceBundleUtil.getHeadquartersBundleString("timeformat", config().getLocale());
 		Date finalLastFarmingTime = null;
 
 		someDateFormat.applyPattern(dateformat);
-		resourcesAvailableText = resourcesAvailableText.replace(ResourceBundleUtil.getFarmassistantBundleString("today"), " " + someDateFormat.format(new Date()));
+		resourcesAvailableText = resourcesAvailableText.replace(ResourceBundleUtil.getFarmassistantBundleString("today", config().getLocale()), " " + someDateFormat.format(new Date()));
 		resourcesAvailableText = resourcesAvailableText.replaceAll("[A-Za-z]", "");
 		resourcesAvailableText = resourcesAvailableText.replaceAll(" +", " ");
 		resourcesAvailableText = resourcesAvailableText.substring(1);
@@ -201,7 +196,7 @@ public class Headquarters extends Site {
 		WebElement nameInput = findElement(By.xpath("//input[@type='text' and @name='name']"));
 		if (newName.length() <= Integer.valueOf(nameInput.getAttribute("maxlength"))){
 			nameInput.sendKeys(Keys.chord(Keys.CONTROL, "a"), newName);
-			findElement(By.xpath("//input[@type=submit and @value='" + ResourceBundleUtil.getHeadquartersBundleString("change") +"']")).click();
+			findElement(By.xpath("//input[@type=submit and @value='" + ResourceBundleUtil.getHeadquartersBundleString("change", config().getLocale()) +"']")).click();
 		} else {
 			System.out.println("Der Dorfname darf maximal " + nameInput.getAttribute("maxlength") + " Zeichen lang sein, der angegeben Wert ist jedoch " + newName.length() + " Zeichen lang");
 		}

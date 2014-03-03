@@ -1,11 +1,11 @@
 package tool.recruitment;
 
-import org.openqa.selenium.WebDriver;
+import config.TwConfiguration;
 
 public class Stable extends RecruitmentBuilding{
 
-	public Stable(WebDriver pDriver) {
-		super("/game.php", "stable", pDriver);
+	public Stable(TwConfiguration pConfig) {
+		super(pConfig, "/game.php", "stable");
 	}
 
 }

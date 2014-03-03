@@ -6,15 +6,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import config.TwConfiguration;
 import tool.Market;
 
 public class SendResources extends Procedure {
 
+	private final Market market;
 	private final Point destinationCoords;
-	private final Market market = Market.getInstance();
 	
-	public SendResources(Calendar pActivationTime, Point pDestinationCoords) {
-		super(pActivationTime);
+	public SendResources(TwConfiguration pConfig, Market pMarket, Calendar pActivationTime, Point pDestinationCoords) {
+		super(pConfig, pActivationTime);
+		this.market = pMarket;
 		this.destinationCoords = pDestinationCoords;
 	}
 

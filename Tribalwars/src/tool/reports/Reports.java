@@ -1,34 +1,29 @@
 package tool.reports;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import tool.Site;
 import utile.Helper;
 import utile.ReportStatus;
 import utile.ResourceBundleUtil;
+import config.TwConfiguration;
 
 public class Reports extends Site {
-
-	private static final Reports INSTANCE = new Reports();
 	
 	public static final int FOLDER_ALL = -1;
 	public static final int FOLDER_NEW = 0;
 
-	private Reports() {
-		super("/game.php", "report");
-	}
-
-	public static Reports getInstance() {
-		return Reports.INSTANCE;
+	private Reports(TwConfiguration pConfig) {
+		super(pConfig, "/game.php", "report");
 	}
 	
 	public void goToSubmenu(Submenu submenu) {
@@ -53,7 +48,7 @@ public class Reports extends Site {
 	}
 
 	public void resetAllFilters() {
-		String resetFiltersName = ResourceBundleUtil.getReportsBundleString("resetFilters");
+		String resetFiltersName = ResourceBundleUtil.getReportsBundleString("resetFilters", config().getLocale());
 		findElement(By.xpath("//input[@value='" + resetFiltersName + "']")).click();
 	}
 
@@ -87,17 +82,17 @@ public class Reports extends Site {
 	}
 
 	public void clickDeleteBtn() {
-		String value = ResourceBundleUtil.getReportsBundleString("delete");
+		String value = ResourceBundleUtil.getReportsBundleString("delete", config().getLocale());
 		findElement(By.xpath("//input[@value='" + value + "']")).click();
 	}
 
 	public void forwardSelectedReports(String recipient) {
-		String value = ResourceBundleUtil.getReportsBundleString("forward");
+		String value = ResourceBundleUtil.getReportsBundleString("forward", config().getLocale());
 		findElement(By.xpath("//input[@value='" + value + "']")).click();
 		WebElement to = findElement(By.id("to"));
 		to.click();
 		to.sendKeys(recipient);
-		findElement(By.xpath("//input[@type='submit' and @value='" + ResourceBundleUtil.getReportsBundleString("forward") +"']")).click();
+		findElement(By.xpath("//input[@type='submit' and @value='" + ResourceBundleUtil.getReportsBundleString("forward", config().getLocale()) +"']")).click();
 	}
 
 	private List<WebElement> getReportEntryTrs() {
@@ -123,7 +118,7 @@ public class Reports extends Site {
 		// ID
 		int id = Integer.valueOf(checkbox.getAttribute("name").replaceAll("[^0-9]", ""));
 		
-		ReportEntry reportEntry = new ReportEntry(driver(), id);
+		ReportEntry reportEntry = new ReportEntry(config(), id);
 		return reportEntry;
 	}
 

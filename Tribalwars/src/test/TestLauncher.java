@@ -1,12 +1,13 @@
 package test;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import java.util.Locale;
+
 
 public class TestLauncher {
 
 	public static void main(String[] args) {
-		System.setProperty("webdriver.chrome.driver", "Z:\\chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		Locale test = Locale.US;
+		System.out.println(test.getLanguage());
+		System.out.println(test.getCountry());
 	}
 }

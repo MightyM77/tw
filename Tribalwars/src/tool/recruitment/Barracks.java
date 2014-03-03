@@ -1,10 +1,10 @@
 package tool.recruitment;
 
-import org.openqa.selenium.WebDriver;
+import config.TwConfiguration;
 
 public class Barracks extends RecruitmentBuilding {
 
-	public Barracks(WebDriver pDriver) {
-		super("/game.php", "barracks", pDriver);
+	public Barracks(TwConfiguration pConfig) {
+		super(pConfig, "/game.php", "barracks");
 	}
 }

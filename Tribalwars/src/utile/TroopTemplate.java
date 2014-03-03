@@ -18,6 +18,18 @@ public class TroopTemplate {
 			}
 		}
 		this.troops = pTroops;
+		
+	}
+	
+	public boolean enoughTroops(TroopTemplate availableTroops) {
+		boolean enoughTroops = true;
+		Map<Troop, Integer> availableTroopsMap = availableTroops.getAllTroops();
+		for (Troop troop : Troop.values()) {
+			if (troops.get(troop) > availableTroopsMap.get(troop)) {
+				enoughTroops = false;
+			}
+		}
+		return enoughTroops;
 	}
 	
 	/**

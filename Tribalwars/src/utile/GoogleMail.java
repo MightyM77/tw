@@ -15,6 +15,12 @@ public class GoogleMail {
 	private GoogleMail() {
 	}
 
+	public static void Send(final String username, final String password, String title, String message, String... recipientEmails) throws AddressException, MessagingException {
+		for (String recipient : recipientEmails) {
+			GoogleMail.Send(username, password, recipient, "", title, message);
+		}
+	}
+	
 	/**
 	 * Send email using GMail SMTP server.
 	 * 

@@ -19,7 +19,7 @@ public final class GameHelper {
 		double y = coord1.getY() - coord2.getY();
 		
 		double fields = Math.sqrt((x*x) + (y*y));
-		return (int) Math.round(troop.getWalkingDurationSeconds()*fields);
+		return (int) Math.round(troop.getWalkingDurationSecondsPerField()*fields);
 	}
 	
 	public Point getCoordFromString(String string) {

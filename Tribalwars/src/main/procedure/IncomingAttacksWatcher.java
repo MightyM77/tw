@@ -7,36 +7,41 @@ import java.util.Calendar;
 import java.util.List;
 
 import main.procedure.attacking.AttackVillage;
-import config.Configuration;
 import tool.Market;
-import tool.Overview;
+import tool.Place;
 import tool.overview_villages.incoming.IncomingAttack;
+import config.TwConfiguration;
 
 public class IncomingAttacksWatcher extends Procedure {
 
 	private static final int MINUTES_BEFORE_INCOMING_ARRIVES = -3;
 	private static final Point RAUSSTELL_COORDS = new Point(493,498);
-	private final IncomingAttack ia = IncomingAttack.getInstance();
+	private final IncomingAttack incomingAttack;
+	private final Place place; 
+	private final Market market;
 	
-	public IncomingAttacksWatcher(Calendar pActivationTime) {
-		super(pActivationTime);
+	public IncomingAttacksWatcher(TwConfiguration pConfig, IncomingAttack pIncomingAttack, Place pPlace, Market pMarket, Calendar pActivationTime) {
+		super(pConfig, pActivationTime);
+		this.incomingAttack = pIncomingAttack;
+		this.place = pPlace;
+		this.market = pMarket;
 	}
 
 	@Override
 	public List<Procedure> doAction() throws ParseException {
-		Configuration.LOGGER.info("Starte Incoming-Attacks-Watcher-Procedur");
+		TwConfiguration.LOGGER.info("Starte Incoming-Attacks-Watcher-Procedur");
 		List<Procedure> procedures = new ArrayList<Procedure>();
 		
-		ia.goToSite();
+		incomingAttack.goToSite();
 		
-		int incomingsCount = ia.getIncomingsCount();
+		int incomingsCount = incomingAttack.getIncomingsCount();
 		if (incomingsCount > 0) {
 			for (int i = 0; i < incomingsCount; i++) {
-				Calendar arrival = ia.getArrivingTime(i);
-				Configuration.LOGGER.info("Angriff erkannt. Angreifer: {} Ankunftszeit: {}", ia.getAttackerName(i), ia.getArrivingTime(i).getTime());
+				Calendar arrival = incomingAttack.getArrivingTime(i);
+				TwConfiguration.LOGGER.info("Angriff erkannt. Angreifer: {} Ankunftszeit: {}", incomingAttack.getAttackerName(i), incomingAttack.getArrivingTime(i).getTime());
 				arrival.add(Calendar.MINUTE, MINUTES_BEFORE_INCOMING_ARRIVES);
-				procedures.add(new AttackVillage(arrival, RAUSSTELL_COORDS));
-				procedures.add(new SendResources(arrival, RAUSSTELL_COORDS));
+				procedures.add(new AttackVillage(config(), place, arrival, RAUSSTELL_COORDS));
+				procedures.add(new SendResources(config(), market, arrival, RAUSSTELL_COORDS));
 			}
 		}
 		

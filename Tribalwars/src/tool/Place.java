@@ -7,27 +7,22 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
-import utile.Helper;
 import utile.Troop;
+import config.TwConfiguration;
 
 public class Place extends Site {
-
-	private static final Place INSTANCE = new Place();
+	
 	private final static Random RANDOM_GENERATOR = new Random();
 	
-	private Place() {
-		super("/game.php", "place");
-	}
-	
-	public static final Place getInstance() {
-		return Place.INSTANCE;
+	private Place(TwConfiguration pConfig) {
+		super(pConfig, "/game.php", "place");
 	}
 	
 	private WebElement getTroopTd(Troop troop) {

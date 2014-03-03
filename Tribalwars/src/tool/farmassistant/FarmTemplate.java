@@ -10,16 +10,11 @@ public enum FarmTemplate {
 		this.index = pIndex;
 	}
 	
-	public int getIndex() {
-		return this.index;
+	public static FarmTemplate valueOf(FarmButton farmButton) {
+		return valueOf(farmButton.name());
 	}
 	
-	public FarmButton convertToFarmButton() {
-		for (FarmButton fb : FarmButton.values()) {
-			if (fb.name().equals(name())) {
-				return fb;
-			}
-		}
-		return null;
+	public int getIndex() {
+		return this.index;
 	}
 }

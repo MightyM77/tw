@@ -12,7 +12,7 @@ import main.procedure.Procedure;
 
 import org.openqa.selenium.WebDriver;
 
-import config.Configuration;
+import config.TwConfiguration;
 import tool.Place;
 import utile.GameHelper;
 import utile.Troop;
@@ -25,20 +25,20 @@ public class AttackVillage extends Procedure {
 	private final Point coords;
 	private final boolean attackWithAllTroops;
 	
-	private AttackVillage (Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords, boolean pAttackWithAllTroops) {
-		super(pActivationTime);
-		this.place = Place.getInstance();
+	private AttackVillage (TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords, boolean pAttackWithAllTroops) {
+		super(pConfig, pActivationTime);
+		this.place = pPlace;
 		this.troopsAmount = pTroopsAmount;
 		this.coords = pCoords;
 		this.attackWithAllTroops = pAttackWithAllTroops;
 	}
 	
-	public AttackVillage(Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords) {
-		this(pActivationTime, pTroopsAmount, pCoords, false);
+	public AttackVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords) {
+		this(pConfig, pPlace, pActivationTime, pTroopsAmount, pCoords, false);
 	}
 
-	public AttackVillage(Calendar pActivationTime, Point pCoords) {
-		this(pActivationTime, null, pCoords, true);
+	public AttackVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, Point pCoords) {
+		this(pConfig, pPlace, pActivationTime, null, pCoords, true);
 	}
 	
 	private Place place() {
@@ -55,17 +55,17 @@ public class AttackVillage extends Procedure {
 	
 	@Override
 	public List<Procedure> doAction() {
-		Configuration.LOGGER.info("Starte Dorf-Angreifen-Prozedur");
+		TwConfiguration.LOGGER.info("Starte Dorf-Angreifen-Prozedur");
 		List<Procedure> procedures = new ArrayList<Procedure>();
 		
 		place().goToSite();
 		
 		if (this.attackWithAllTroops) {
 			if (place().isSomeUnitPresent()) {
-				Configuration.LOGGER.info("Greife ({}|{}) mit allen Truppen an", this.coords.x, this.coords.y);
+				TwConfiguration.LOGGER.info("Greife ({}|{}) mit allen Truppen an", this.coords.x, this.coords.y);
 				place().attackWithAllTroops(this.coords);
 			} else {
-				Configuration.LOGGER.warn("Es sind keine Truppen anwesend, ({}|{}) kann nicht mit allen Truppen angegriffen werden", this.coords.x, this.coords.y);
+				TwConfiguration.LOGGER.warn("Es sind keine Truppen anwesend, ({}|{}) kann nicht mit allen Truppen angegriffen werden", this.coords.x, this.coords.y);
 			}
 		} else {
 			boolean enoughTroops = true;
@@ -77,10 +77,10 @@ public class AttackVillage extends Procedure {
 				}
 			}
 			if (enoughTroops) {
-				Configuration.LOGGER.info("Greife ({}|{}) an", this.coords.x, this.coords.y);
+				TwConfiguration.LOGGER.info("Greife ({}|{}) an", this.coords.x, this.coords.y);
 				place().attack(troopsAmount(), coords());
 			} else {
-				Configuration.LOGGER.warn("Es sind nicht genügend Truppen anwesend, ({}|{}) kann nicht angegriffen werden", this.coords.x, this.coords.y);
+				TwConfiguration.LOGGER.warn("Es sind nicht genügend Truppen anwesend, ({}|{}) kann nicht angegriffen werden", this.coords.x, this.coords.y);
 			}
 		}
 		

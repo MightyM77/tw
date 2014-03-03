@@ -1,15 +1,11 @@
 package tool.overview_villages.incoming;
 
-public class IncomingAttack extends Incoming {
+import config.TwConfiguration;
 
-	private static final IncomingAttack INSTANCE = new IncomingAttack();
+public class IncomingAttack extends Incoming {
 	
-	private IncomingAttack() {
-		super(Mode.ATTACKS);
-	}
-	
-	public static IncomingAttack getInstance() {
-		return INSTANCE;
+	private IncomingAttack(TwConfiguration pConfig) {
+		super(pConfig, Mode.ATTACKS);
 	}
 
 }

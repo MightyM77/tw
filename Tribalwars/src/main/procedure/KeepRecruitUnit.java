@@ -9,7 +9,7 @@ import org.openqa.selenium.WebDriver;
 import tool.recruitment.RecruitmentBuilding;
 import utile.Building;
 import utile.Troop;
-import config.Configuration;
+import config.TwConfiguration;
 
 public class KeepRecruitUnit extends Procedure {
 
@@ -19,13 +19,13 @@ public class KeepRecruitUnit extends Procedure {
 
 	private final Building building;
 	private final Troop troop;
-	private final RecruitmentBuilding rb;
+	private final RecruitmentBuilding recruitmentBuilding;
 
-	public KeepRecruitUnit(Calendar pActivationTime, Building pBuilding, Troop pTroop) {
-		super(pActivationTime);
+	public KeepRecruitUnit(TwConfiguration pConfig, RecruitmentBuilding pRecruitmentBuilding, Calendar pActivationTime, Building pBuilding, Troop pTroop) {
+		super(pConfig, pActivationTime);
 		this.building = pBuilding;
 		this.troop = pTroop;
-		this.rb = new RecruitmentBuilding("/game.php", getBuilding().getId(), driver());
+		this.recruitmentBuilding = pRecruitmentBuilding;
 	}
 
 	private Building getBuilding() {
@@ -38,30 +38,30 @@ public class KeepRecruitUnit extends Procedure {
 
 	@Override
 	public List<Procedure> doAction() {
-		Configuration.LOGGER.debug("Starte Dauerhaft-Rekrutieren-Prozedur");
+		TwConfiguration.LOGGER.debug("Starte Dauerhaft-Rekrutieren-Prozedur");
 		List<Procedure> procedures = new ArrayList<Procedure>();
 
-		rb.goToSite();
-		Calendar recruitmentTime = Calendar.getInstance(Configuration.LOCALE);
+		recruitmentBuilding.goToSite();
+		Calendar recruitmentTime = Calendar.getInstance();
 
-		if (rb.isUnitAvailable(troop)) {
-			if (rb.isMaxLinkBtnEnabled(getTroop())) {
-				int maxRecruitmentSeconds = rb.getMaxRecruit(getTroop()) * rb.getRecruitmentSeconds(getTroop());
+		if (recruitmentBuilding.isUnitAvailable(troop)) {
+			if (recruitmentBuilding.isMaxLinkBtnEnabled(getTroop())) {
+				int maxRecruitmentSeconds = recruitmentBuilding.getMaxRecruit(getTroop()) * recruitmentBuilding.getRecruitmentSeconds(getTroop());
 				recruitmentTime.add(Calendar.SECOND, maxRecruitmentSeconds);
 				recruitmentTime.add(Calendar.MINUTE, 1);
-				KeepRecruitUnit newKeepRecruitUnit = new KeepRecruitUnit(recruitmentTime, getBuilding(), getTroop());
+				KeepRecruitUnit newKeepRecruitUnit = new KeepRecruitUnit(config(), recruitmentBuilding, recruitmentTime, getBuilding(), getTroop());
 				procedures.add(newKeepRecruitUnit);
-				rb.getMaxRecruit(troop);
-				int maxRecruit = rb.getMaxRecruit(troop);
-				rb.recruitMax(getTroop());
-				Configuration.LOGGER.info("{} {} rekrutiert. Rekrutierung voraussichtlich am {} abgeschlossen (Aktivierungszeit um wieder zu rekrutieren)", maxRecruit, troop.getId(), newKeepRecruitUnit.getActivationTime().getTime());
+				recruitmentBuilding.getMaxRecruit(troop);
+				int maxRecruit = recruitmentBuilding.getMaxRecruit(troop);
+				recruitmentBuilding.recruitMax(getTroop());
+				TwConfiguration.LOGGER.info("{} {} rekrutiert. Rekrutierung voraussichtlich am {} abgeschlossen (Aktivierungszeit um wieder zu rekrutieren)", maxRecruit, troop.getId(), newKeepRecruitUnit.getActivationTime().getTime());
 			} else {
-				Configuration.LOGGER.warn("Einheit {} kann momentan nicht rekrutiert werden, da zu wenig Ressourcen vorhanden sind. Versuche in {} Minuten noch einmal", getTroop().getId(), KeepRecruitUnit.TRY_RECRUIT_AGAIN);
+				TwConfiguration.LOGGER.warn("Einheit {} kann momentan nicht rekrutiert werden, da zu wenig Ressourcen vorhanden sind. Versuche in {} Minuten noch einmal", getTroop().getId(), KeepRecruitUnit.TRY_RECRUIT_AGAIN);
 				recruitmentTime.add(Calendar.MINUTE, KeepRecruitUnit.TRY_RECRUIT_AGAIN);
-				procedures.add(new KeepRecruitUnit(recruitmentTime, getBuilding(), getTroop()));
+				procedures.add(new KeepRecruitUnit(config(), recruitmentBuilding, recruitmentTime, getBuilding(), getTroop()));
 			}
 		} else {
-			Configuration.LOGGER.warn("Die Einheit {} kann zur Zeit nicht rekrutiert werden (wahrscheinlich noch nicht erforscht)", troop.getId());
+			TwConfiguration.LOGGER.warn("Die Einheit {} kann zur Zeit nicht rekrutiert werden (wahrscheinlich noch nicht erforscht)", troop.getId());
 		}
 
 		return procedures;

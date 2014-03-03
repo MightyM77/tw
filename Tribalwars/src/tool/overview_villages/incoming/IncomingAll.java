@@ -1,15 +1,11 @@
 package tool.overview_villages.incoming;
 
+import config.TwConfiguration;
+
 public class IncomingAll extends Incoming {
-
-	private static final IncomingAll INSTANCE = new IncomingAll();
 	
-	private IncomingAll() {
-		super(Mode.ALL);
-	}
-
-	public static IncomingAll getInstance() {
-		return INSTANCE;
+	private IncomingAll(TwConfiguration pConfig) {
+		super(pConfig, Mode.ALL);
 	}
 	
 }

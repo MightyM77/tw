@@ -6,21 +6,16 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import utile.Resource;
+import config.TwConfiguration;
 
 public class Market extends Site {
-
-	private static final Market INSTANCE = new Market();
 	
-	private Market() {
-		super("/game.php", "market");
+	private Market(TwConfiguration pConfig) {
+		super(pConfig, "/game.php", "market");
 	}
 	
-	public static Market getInstance() {
-		return INSTANCE;
-	}
-	
-	private WebElement getMaxLink(Resource ofResource) {
-		return findElement(By.className("a.insert " + ofResource.getId()));
+	private WebElement getMaxLink(String resourceId) {
+		return findElement(By.className("a.insert " + resourceId));
 	}
 	
 	private WebElement getInputX() {
@@ -38,9 +33,9 @@ public class Market extends Site {
 	public void sendMax(Point destinationCoords) {
 		getInputX().sendKeys(String.valueOf((int) destinationCoords.getX()));
 		getInputY().sendKeys(String.valueOf((int) destinationCoords.getY()));
-		getMaxLink(Resource.IRON).click();
-		getMaxLink(Resource.WOOD).click();
-		getMaxLink(Resource.CLAY).click();
+		getMaxLink(Resource.IRON_ID).click();
+		getMaxLink(Resource.WOOD_ID).click();
+		getMaxLink(Resource.CLAY_ID).click();
 		getOkBtn().click();
 	}
 }

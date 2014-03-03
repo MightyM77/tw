@@ -1,9 +1,9 @@
 package tool.reports;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.not;
 
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,21 +17,22 @@ import org.openqa.selenium.WebElement;
 import utile.Helper;
 import utile.ReportStatus;
 import utile.ResourceBundleUtil;
+import config.TwConfiguration;
 
 public class ReportEntry {
 
 	private static final SimpleDateFormat SOME_DATE_FORMAT = new SimpleDateFormat();
 	
-	private final WebDriver driver;
 	private int id;
+	private final TwConfiguration config;
 	
-	public ReportEntry(WebDriver pDriver, int pId) {
-		this.driver = pDriver;
+	public ReportEntry(TwConfiguration pConfig, int pId) {
+		this.config = pConfig;
 		this.id = pId;
 	}
 	
 	private WebElement getTr() {
-		List<WebElement> checkbox = driver.findElements(By.xpath(".//input[@type='checkbox' and @name='id_" + String.valueOf(this.id) + "']"));
+		List<WebElement> checkbox = config.getDriver().findElements(By.xpath(".//input[@type='checkbox' and @name='id_" + String.valueOf(this.id) + "']"));
 		assertThat("Report mit der ID '" + String.valueOf(id) + "' nicht vorhanden", checkbox.toArray(), arrayWithSize(1));
 		return checkbox.get(0).findElement(By.xpath("..//.."));
 	}
@@ -89,7 +90,7 @@ public class ReportEntry {
 	
 	public Date getReceivedDate() {
 		Date received = null;
-		String dateFormat = ResourceBundleUtil.getReportsBundleString("reportEntryDateFormat");
+		String dateFormat = ResourceBundleUtil.getReportsBundleString("reportEntryDateFormat", config.getLocale());
 		SOME_DATE_FORMAT.applyPattern(dateFormat);
 		String dateString = getTr().findElements(By.tagName("td")).get(1).getText();
 		try {
@@ -102,6 +103,6 @@ public class ReportEntry {
 	}
 	
 	public boolean isNew() {
-		return getTr().findElements(By.tagName("td")).get(0).getText().contains(ResourceBundleUtil.getReportsBundleString("new"));
+		return getTr().findElements(By.tagName("td")).get(0).getText().contains(ResourceBundleUtil.getReportsBundleString("new", config.getLocale()));
 	}
 }

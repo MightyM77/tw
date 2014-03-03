@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -15,30 +16,34 @@ import javax.mail.internet.AddressException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utile.GoogleMail;
 import utile.ResourceBundleUtil;
-import config.Configuration;
+import config.TwConfiguration;
 
 public class Site {
 
-	private String file;
+	private final String file;
+	private final TwConfiguration config;
+	
+	protected final Map<String, String> urlParameters = new HashMap<String, String>();
 
-	protected Map<String, String> urlParameters = new HashMap<String, String>();
-	protected WebDriverWait wait;
 	protected SimpleDateFormat someDateFormat = new SimpleDateFormat();
 
-	public Site(String pFile, String screen) {
+	public Site(TwConfiguration pConfig, String pFile, String screen) {
+		this.config = pConfig;
 		this.file = pFile;
-		this.wait = new WebDriverWait(driver(), 10);
 		if (screen.length() > 0) {
 			this.urlParameters.put("screen", screen);
 		}
 	}
-
+	
+	protected TwConfiguration config() {
+		return config;
+	}
+	
 	protected WebDriver driver() {
-		return Configuration.DRIVER;
+		return config.getDriver();
 	}
 
 	public int getIncomingAmount() {
@@ -48,7 +53,7 @@ public class Site {
 
 	public void goToSite() {
 
-		String url = Configuration.LOCALE.getCountry() + Configuration.WORLD + "." + ResourceBundleUtil.getGeneralBundleString("hostname") + this.file + "?";
+		String url = config().getLocale().getCountry() + config.getWorld() + "." + ResourceBundleUtil.getGeneralBundleString("hostname", config.getLocale()) + this.file + "?";
 
 		Iterator<Entry<String, String>> iterator = urlParameters.entrySet().iterator();
 		while (iterator.hasNext()) {
@@ -73,31 +78,40 @@ public class Site {
 	private void checkForBotProtection() {
 		List<WebElement> botElement = driver().findElements(By.id("bot_check"));
 
-		int emailsSent = 0;
+		int durchlaeufe = 0;
 		while (botElement.size() > 0) {
-			Configuration.LOGGER.warn("Botprotection display value: " + botElement.get(0).getCssValue("display"));
-			if (Configuration.EMAIL_ON_EXCEPTION && emailsSent < 1) {
-				Configuration.LOGGER.warn("!!!!!!!!!!!!!!! BOTPROTECTION GEFUNDEN !!!!!!!!!!!!!!!");
-				try {
-					GoogleMail.Send(Configuration.SENDER_EMAIL, Configuration.SENDER_EMAIL_PW, Configuration.RECIPIENT_EMAIL, "PROTECTION", "Protection aufgetaucht");
-				} catch (AddressException e) {
-					e.printStackTrace();
-				} catch (MessagingException e) {
-					e.printStackTrace();
+			if (botElement.get(0).getCssValue("display").equals("none")) {
+				TwConfiguration.LOGGER.info("Botprotection verschwunden");
+				break;
+			}
+			TwConfiguration.LOGGER.warn("Botprotection display value: " + botElement.get(0).getCssValue("display"));
+			if (durchlaeufe < 1) {
+				TwConfiguration.LOGGER.warn("!!!!!!!!!!!!!!! BOTPROTECTION AUFGETAUCHT !!!!!!!!!!!!!!!");
+				if (config().isEmailOnBotProtection()) {
+					try {
+						GoogleMail.Send(config().getSenderEmail(), config().getSenderPw(), "PROTECTION", "Protection aufgetaucht", config().getRecipientEmails());
+					} catch (AddressException e) {
+						e.printStackTrace();
+					} catch (MessagingException e) {
+						e.printStackTrace();
+					}
 				}
-				emailsSent++;
 			}
 			botElement = driver().findElements(By.id("bot_check"));
-			
-			if (Configuration.BING_ON_BOT_PROTECTION) { 
-				Toolkit.getDefaultToolkit().beep(); 
+
+			if (config().isBingOnBotProtection()) {
+				Toolkit.getDefaultToolkit().beep();
 			}
-			
+
+			durchlaeufe++;
 			try {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+		if (durchlaeufe > 0) {
+			TwConfiguration.LOGGER.warn("Botprotection wurde eingegeben, fahre fort mit Programmablauf");
 		}
 	}
 
@@ -167,7 +181,7 @@ public class Site {
 		return Integer.valueOf(findElement(By.id("rank_rank")).getText().replaceAll("[^0-9]", ""));
 	}
 
-	public Point getCoords() {
+	public Point getCurrentCoord() {
 		String text = findElement(By.xpath("//tr[@id='menu_row2']/td[@class='box-item']/b[@class='nowrap']")).getText();
 		text = text.substring(1, 8);
 		String[] splitText = text.split("\\|");

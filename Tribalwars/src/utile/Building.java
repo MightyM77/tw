@@ -5,16 +5,18 @@ public enum Building {
 	BARRACKS ("barracks"),
 	STABLE ("stable"),
 	SMITHY ("smith"),
-	REALLY_POINT ("plase"),
+	REALLY_POINT ("place"),
 	STATUE ("statue"),
 	MARKET ("market"),
-	TIMBER_CAMP ("woord"),
+	TIMBER_CAMP ("wood"),
 	CLAY_PIT ("stone"),
 	IRON_MINE ("iron"),
 	FARM ("farm"),
 	WAREHOUSE ("storage"),
 	HIDING_PLACE ("hide"),
-	WALL ("wall");
+	WALL ("wall"),
+	WORKSHOP("garage"),
+	ACADEMY("snob");
 	
 	private final String id;
 	

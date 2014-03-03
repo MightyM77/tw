@@ -5,7 +5,7 @@ import java.util.Calendar;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import config.Configuration;
+import config.TwConfiguration;
 
 public final class Helper {
 
@@ -43,9 +43,5 @@ public final class Helper {
 		} else {
 		  return clazz.getSimpleName();
 		}
-	}
-	
-	public Calendar getCalendar() {
-		return Calendar.getInstance(Configuration.TIME_ZONE);
 	}
 }

@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Random;
 
 import main.procedure.Procedure;
-import config.Configuration;
+import config.TwConfiguration;
+import tool.farmassistant.FarmButton;
 import tool.farmassistant.FarmEntry;
 import tool.farmassistant.FarmTemplate;
 import tool.farmassistant.Farmassistant;
@@ -32,9 +33,9 @@ public class FarmassistantFarming extends Procedure {
 	private final static Random RANDOM_GENERATOR = new Random();
 	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 30;
 
-	public FarmassistantFarming(Calendar pActivationTime, ReportStatus[] pOnlyThoseReportStatus, FarmTemplate... pFarmTemplates) {
-		super(pActivationTime);
-		this.fa = Farmassistant.getInstance();
+	public FarmassistantFarming(TwConfiguration pConfig, Farmassistant pFarmassistant, Calendar pActivationTime, ReportStatus[] pOnlyThoseReportStatus, FarmTemplate... pFarmTemplates) {
+		super(pConfig, pActivationTime);
+		this.fa = pFarmassistant;
 		this.onlyThoseReportStatus = pOnlyThoseReportStatus;
 		this.onlyThoseFarmTemplates = pFarmTemplates;
 	}
@@ -63,27 +64,16 @@ public class FarmassistantFarming extends Procedure {
 		return this.onlyThoseFarmTemplates;
 	}
 
-	private boolean enoughTroops(TroopTemplate bTemplateTroops, TroopTemplate availableTroops) {
-		Map<Troop, Integer> availableTroopsMap = availableTroops.getAllTroops();
-		Map<Troop, Integer> bTemplateTroopsMap = bTemplateTroops.getAllTroops();
-		for (Troop troopKey : bTemplateTroopsMap.keySet()) {
-			if (availableTroopsMap.get(troopKey) < bTemplateTroopsMap.get(troopKey)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private FarmassistantFarming createFarmassistantABFarming(FarmEntry fe, TroopTemplate troops) {
 		Troop slowestTroop = troops.getSlowestTroop();
-		Calendar troopsBack = fe.getBackToVillageTime(slowestTroop);
+		Calendar troopsBack = slowestTroop.getBackTime(fa.getCurrentCoord(), fe.getDestCoord());
 		troopsBack.add(Calendar.SECOND, ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK);
-		return new FarmassistantFarming(troopsBack, getOnlyThoseReportStatus(), getOnlyThoseFarmTemplates());
+		return new FarmassistantFarming(config(), fa, troopsBack, getOnlyThoseReportStatus(), getOnlyThoseFarmTemplates());
 	}
 
 	@Override
 	public List<Procedure> doAction() {
-		Configuration.LOGGER.info("Starte Farmassistent Durchlauf");
+		TwConfiguration.LOGGER.info("Starte Farmassistent Durchlauf");
 
 		List<Procedure> triggeringProcedures = new ArrayList<Procedure>();
 		fa.goToSite(2502);
@@ -92,12 +82,12 @@ public class FarmassistantFarming extends Procedure {
 		TroopTemplate availableTroops;
 		Map<FarmTemplate, TroopTemplate> templateTroops = new HashMap<FarmTemplate, TroopTemplate>();
 		for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
-			TroopTemplate tt = fa.getTemplateTroops(farmTemplate);
+			TroopTemplate tt = fa.getTroopTemplate(farmTemplate);
 			templateTroops.put(farmTemplate, tt);
 		}
 
 		boolean enoughTroops = true;
-		boolean firstRun = true;
+		int firstRun = 1;
 		
 		while (enoughTroops) {
 			int farmEntriesCount = fa.getFarmEntriesCount();
@@ -105,17 +95,17 @@ public class FarmassistantFarming extends Procedure {
 				FarmEntry fe = fa.getFarmEntry(i);
 				availableTroops = fa.getAvailableTroops();
 				enoughTroops = false;
-				boolean validFarmEntry = Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getFarmStatus()) && (!fe.isGettingAttacked() || !firstRun);
+				boolean validFarmEntry = Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getReportStatus()) && (!fe.isGettingAttacked() || firstRun > 1);
 				boolean validWall = fe.getWallLevel() < 5;
 				
 				for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
-					if (enoughTroops(templateTroops.get(farmTemplate), availableTroops)) {
+					if (templateTroops.get(farmTemplate).enoughTroops(availableTroops)) {
 						enoughTroops = true;
-						if (validFarmEntry && validWall && fe.isFarmButtonEnabled(farmTemplate) && enoughTroops(templateTroops.get(farmTemplate), availableTroops)) {
-							fe.clickFarmButton(farmTemplate.convertToFarmButton());
+						if (validFarmEntry && validWall && fe.isFarmButtonEnabled(farmTemplate) && templateTroops.get(farmTemplate).enoughTroops(availableTroops)) {
+							fe.clickFarmButton(FarmButton.valueOf(farmTemplate));
 //							FarmassistantFarming newFarmDurchgang = createFarmassistantABFarming(fe, templateTroops.get(farmTemplate));
-							Configuration.LOGGER.info("Barbarendorf gefarmt: ({}|{}) Langsamste Einheit: {}", (int) fe.getCoord().getX(), (int) fe
-									.getCoord().getY(), templateTroops.get(farmTemplate).getSlowestTroop().getId());
+							TwConfiguration.LOGGER.info("Barbarendorf gefarmt: ({}|{}) Langsamste Einheit: {}", (int) fe.getDestCoord().getX(), (int) fe
+									.getDestCoord().getY(), templateTroops.get(farmTemplate).getSlowestTroop().getId());
 //							triggeringProcedures.add(newFarmDurchgang);
 							FarmassistantFarming.gefarmteDoerfer++;
 							try {
@@ -127,25 +117,25 @@ public class FarmassistantFarming extends Procedure {
 					}
 				}
 				if (!enoughTroops) {
-					Configuration.LOGGER.info("Breche beim " + i + ". von " + farmEntriesCount + ". Farmeinträgen ab da nicht mehr genügend Truppen vorhanden sind");
+					TwConfiguration.LOGGER.info("Breche beim " + i + ". von " + farmEntriesCount + ". Farmeinträgen ab da nicht mehr genügend Truppen vorhanden sind");
 					break;
 				}
 			}
 			if (fa.hasNextPage() && enoughTroops) {
-				Configuration.LOGGER.info("Gehe zur nächsten Farmassistent Seite");
+				TwConfiguration.LOGGER.info("Gehe zur nächsten Farmassistent Seite");
 				fa.nextPage();
 			} else if (enoughTroops) {
-				Configuration.LOGGER.info("Gehe zur ersten Farmassistent Seite");
+				TwConfiguration.LOGGER.info("Gehe zur ersten Farmassistent Seite");
 				fa.goToPage(1);
-				firstRun = false;
+				firstRun++;
 			}
 		}
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, 5);
-		triggeringProcedures.add(new FarmassistantFarming(cal, onlyThoseReportStatus, onlyThoseFarmTemplates));
-		Configuration.LOGGER.info("Gefarmte Dörfer in diesem Durchgang: {}", triggeringProcedures.size());
-		Configuration.LOGGER.info("Gefarmte Dörfer total: {}", FarmassistantFarming.gefarmteDoerfer);
+		triggeringProcedures.add(new FarmassistantFarming(config(), fa, cal, onlyThoseReportStatus, onlyThoseFarmTemplates));
+		TwConfiguration.LOGGER.info("Gefarmte Dörfer in diesem Durchgang: {}", triggeringProcedures.size());
+		TwConfiguration.LOGGER.info("Gefarmte Dörfer total: {}", FarmassistantFarming.gefarmteDoerfer);
 		
 		return triggeringProcedures;
 	}

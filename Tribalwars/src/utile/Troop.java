@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
 import java.awt.Point;
+import java.util.Calendar;
 import java.util.List;
 
 public enum Troop {
@@ -29,7 +30,7 @@ public enum Troop {
 		this.walkingDurationSeconds = pWalkingDurationSeconds;
 	}
 	
-	public static Troop convertTroopIdToTroop(String troopId) {
+	public static Troop valueOfId(String troopId) {
 		Troop finalTroop = null;
 		for (Troop troop : Troop.values()) {
 			if (troop.getId().equals(troopId)) {
@@ -50,26 +51,40 @@ public enum Troop {
 		for (Troop troop : troops) {
 			if (slowestUnit == null) {
 				slowestUnit = troop;
-			} else if (slowestUnit.getWalkingDurationSeconds() < troop.getWalkingDurationSeconds()) {
+			} else if (slowestUnit.getWalkingDurationSecondsPerField() < troop.getWalkingDurationSecondsPerField()) {
 				slowestUnit = troop;
 			}
 		}
 		return slowestUnit;
 	}
 	
-	public int getWalkingDurationSeconds(Point coord1, Point coord2) {
-		double x = coord1.getX() - coord2.getX();
-		double y = coord1.getY() - coord2.getY();
+	public int getWalkingDurationSeconds(Point srcCoord, Point destCoord) {
+		double x = srcCoord.getX() - destCoord.getX();
+		double y = srcCoord.getY() - destCoord.getY();
 		
 		double fields = Math.sqrt((x*x) + (y*y));
-		return (int) Math.round(getWalkingDurationSeconds()*fields);
+		return (int) Math.round(getWalkingDurationSecondsPerField()*fields);
+	}
+	
+	public Calendar getArrivingTime(Point srcCoord, Point destCoord) {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.SECOND, getWalkingDurationSeconds(srcCoord, destCoord));
+		return cal;
+	}
+	
+	public Calendar getBackTime(Point srcCoord, Point destCoord) {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.SECOND, getWalkingDurationSeconds(srcCoord, destCoord)*2);
+		return cal;
 	}
 	
 	public String getId() {
 		return this.id;
 	}
 	
-	public int getWalkingDurationSeconds() {
+	public int getWalkingDurationSecondsPerField() {
 		return this.walkingDurationSeconds;
 	}
+
+	
 }

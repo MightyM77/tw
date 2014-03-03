@@ -3,7 +3,6 @@ package tool.recruitment;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -14,15 +13,16 @@ import org.openqa.selenium.WebElement;
 import tool.Site;
 import utile.ResourceBundleUtil;
 import utile.Troop;
+import config.TwConfiguration;
 
 public class RecruitmentBuilding extends Site {
 
-	public RecruitmentBuilding(String pFile, String screen, WebDriver pDriver) {
-		super(pFile, screen);
+	public RecruitmentBuilding(TwConfiguration pConfig, String pFile, String screen) {
+		super(pConfig, pFile, screen);
 	}
 
 	private WebElement getRecruitBtn() {
-		return driver().findElement(By.xpath("//input[@type='submit' and @value='" + ResourceBundleUtil.getBarracksBundleString("recruit") + "']"));
+		return driver().findElement(By.xpath("//input[@type='submit' and @value='" + ResourceBundleUtil.getBarracksBundleString("recruit", config().getLocale()) + "']"));
 	}
 	
 	private WebElement getRecruitInput(Troop troop) {

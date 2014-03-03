@@ -8,21 +8,27 @@ import java.util.List;
 import org.openqa.selenium.WebDriver;
 
 import utile.Helper;
-import config.Configuration;
+import config.TwConfiguration;
 
 public abstract class Procedure{
 
 	private final Calendar activationTime;
+	private final TwConfiguration config;
 	
-	public Procedure(Calendar pActivationTime) {
+	public Procedure(TwConfiguration pConfig, Calendar pActivationTime) {
+		this.config = pConfig;
 		this.activationTime = pActivationTime;
-		Configuration.LOGGER.debug("Neuer " + Helper.getInstance().getClassName(getClass()) + " erstellt, Aktivierungszeit: " + getActivationTime().getTime());
+		TwConfiguration.LOGGER.debug("Neuer " + Helper.getInstance().getClassName(getClass()) + " erstellt, Aktivierungszeit: " + getActivationTime().getTime());
+	}
+	
+	protected TwConfiguration config() {
+		return config;
 	}
 	
 	public abstract List<Procedure> doAction() throws ParseException;
 	
 	protected WebDriver driver() {
-		return Configuration.DRIVER;
+		return config().getDriver();
 	}
 	
 	public Calendar getActivationTime() {

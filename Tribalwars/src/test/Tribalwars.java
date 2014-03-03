@@ -1,15 +1,15 @@
 package test;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import tool.Site;
+import config.TwConfiguration;
 
 public class Tribalwars extends Site {
 
-	public Tribalwars() {
-		super("", "");
+	public Tribalwars(TwConfiguration pConfig) {
+		super(pConfig, "", "");
 	}
 
 	@Override

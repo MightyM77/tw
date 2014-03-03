@@ -10,24 +10,17 @@ import java.util.Map.Entry;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import tool.Site;
+import config.TwConfiguration;
 import tool.VillageSite;
 import utile.ResourceBundleUtil;
 import utile.Troop;
 import utile.TroopTemplate;
 
 public class Farmassistant extends VillageSite {
-
-	private static final Farmassistant INSTANCE = new Farmassistant(); 
 	
-	private Farmassistant() {
-		super("am_farm");
-	}
-
-	public static Farmassistant getInstance() {
-		return Farmassistant.INSTANCE;
+	public Farmassistant(TwConfiguration pConfig) {
+		super(pConfig, "am_farm");
 	}
 
 	private WebElement getFarmEntriesTable() {
@@ -35,34 +28,20 @@ public class Farmassistant extends VillageSite {
 		return entriesFatherDiv.findElement(By.tagName("table"));
 	}
 
-	private void setTemplateTroops(int templateNumber, Map<String, Integer> troopAmounts) {
-		WebElement form = findElements(By.tagName("form")).get(templateNumber);
+	public void setTemplateTroops(FarmTemplate farmTemplate, TroopTemplate troopTemplate) {
+		WebElement form = findElements(By.tagName("form")).get(farmTemplate.getIndex());
 
-		Iterator<Entry<String, Integer>> iterator = troopAmounts.entrySet().iterator();
+		Iterator<Entry<Troop, Integer>> iterator = troopTemplate.getAllTroops().entrySet().iterator();
 		WebElement input;
 		while (iterator.hasNext()) {
-			Map.Entry<String, Integer> pairs = (Map.Entry<String, Integer>) iterator.next();
-			input = form.findElement(By.xpath(".//input[@name='" + pairs.getKey() + "']"));
+			Map.Entry<Troop, Integer> pairs = (Map.Entry<Troop, Integer>) iterator.next();
+			input = form.findElement(By.xpath(".//input[@name='" + pairs.getKey().getId() + "']"));
 			input.click();
 			input.sendKeys(Keys.chord(Keys.CONTROL, "a"), pairs.getValue().toString());
 		}
 
-		form.findElement(By.xpath(".//input[@value='" + ResourceBundleUtil.getFarmassistantBundleString("save") + "']")).click();
+		form.findElement(By.xpath(".//input[@value='" + ResourceBundleUtil.getFarmassistantBundleString("save", config().getLocale()) + "']")).click();
 		;
-	}
-
-	private void setTemplateTroops(int templateNumber, int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
-		Map<String, Integer> troopAmounts = new HashMap<String, Integer>();
-		troopAmounts.put(Troop.SPEAR.getId(), spear);
-		troopAmounts.put(Troop.SWORD.getId(), sword);
-		troopAmounts.put(Troop.AXE.getId(), axe);
-		troopAmounts.put(Troop.ARCHER.getId(), archer);
-		troopAmounts.put(Troop.SPY.getId(), spy);
-		troopAmounts.put(Troop.LIGHT.getId(), light);
-		troopAmounts.put(Troop.MARCHER.getId(), marcher);
-		troopAmounts.put(Troop.HEAVY.getId(), heavy);
-		troopAmounts.put(Troop.PALADIN.getId(), knight);
-		setTemplateTroops(templateNumber, troopAmounts);
 	}
 
 	private void sort(String sortBy, String sortModus) {
@@ -87,35 +66,6 @@ public class Farmassistant extends VillageSite {
 		}
 	}
 
-	private int getTemplateHaulCapacity(int templateNumber) {
-		List<WebElement> tds = findElements(By.tagName("form")).get(templateNumber).findElements(By.tagName("tr")).get(1).findElements(By.tagName("td"));
-		return Integer.valueOf(tds.get(tds.size() - 1).getText().replaceAll("[^0-9]", ""));
-	}
-
-	public int getAtemplateHaulCapacity() {
-		return getTemplateHaulCapacity(0);
-	}
-
-	public int getBtemplateHaulCapacity() {
-		return getTemplateHaulCapacity(1);
-	}
-
-	public void setAtemplateTroops(Map<String, Integer> troopAmounts) {
-		setTemplateTroops(0, troopAmounts);
-	}
-
-	public void setAtemplateTroops(int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
-		setTemplateTroops(0, spear, sword, axe, archer, spy, light, marcher, heavy, knight);
-	}
-
-	public void setBtemplateTroops(Map<String, Integer> troopAmounts) {
-		setTemplateTroops(1, troopAmounts);
-	}
-
-	public void setBtemplateTroops(int spear, int sword, int axe, int archer, int spy, int light, int marcher, int heavy, int knight) {
-		setTemplateTroops(1, spear, sword, axe, archer, spy, light, marcher, heavy, knight);
-	}
-
 	public void setOnlyAttacksFromThisVillage(boolean state) {
 		setCheckboxState(findElement(By.id("all_village_checkbox")), state);
 	}
@@ -124,14 +74,14 @@ public class Farmassistant extends VillageSite {
 		setCheckboxState(findElement(By.id("full_losses_checkbox")), state);
 	}
 
-	public void setAvailableTroops(String[] troopNamesToEnable) {
+	public void setAvailableTroops(Troop[] troopNamesToEnable) {
 		WebElement troopRow = findElement(By.id("units_home"));
 		List<WebElement> troopCheckboxes = troopRow.findElements(By.xpath(".//input[@type='checkbox']"));
 		List<String> checkboxNames = new ArrayList<String>();
 		List<String> troopNamesToEnableList = new ArrayList<String>();
 
-		for (String troopName : troopNamesToEnable) {
-			troopNamesToEnableList.add(troopName);
+		for (Troop troop : troopNamesToEnable) {
+			troopNamesToEnableList.add(troop.getId());
 		}
 		for (WebElement troopCheckbox : troopCheckboxes) {
 			checkboxNames.add(troopCheckbox.getAttribute("name"));
@@ -156,24 +106,38 @@ public class Farmassistant extends VillageSite {
 		}
 	}
 
+	public List<Troop> getEnabledTroopsForCFarming() {
+		WebElement unitsHomeTable = getUnitsHomeTable();
+		List<WebElement> enabledTroopCheckboxes = unitsHomeTable.findElements(By.xpath("//input[@type='checkbox' and @checked='checked']"));
+		List<Troop> enabledTroops = new ArrayList<Troop>();
+		for (WebElement enabledTroopCheckbox : enabledTroopCheckboxes) {
+			enabledTroops.add(Troop.valueOfId(enabledTroopCheckbox.getAttribute("name")));
+		}
+		return enabledTroops;
+	}
+	
+	private WebElement getUnitsHomeTable() {
+		return findElement(By.id("units_home"));
+	}
+	
 	public TroopTemplate getAvailableTroops() {
-		List<WebElement> troopAmounts = findElement(By.id("units_home")).findElements(By.cssSelector("td.unit-item,td.unit-item hidden"));
+		List<WebElement> troopAmounts = getUnitsHomeTable().findElements(By.cssSelector("td.unit-item,td.unit-item hidden"));
 		Map<Troop, Integer> availableTroops = new HashMap<Troop, Integer>();
 
 		for (WebElement troopAmount : troopAmounts) {
-			availableTroops.put(Troop.convertTroopIdToTroop(troopAmount.getAttribute("id")), Integer.parseInt(troopAmount.getText()));
+			availableTroops.put(Troop.valueOfId(troopAmount.getAttribute("id")), Integer.parseInt(troopAmount.getText()));
 		}
 
 		return new TroopTemplate(availableTroops);
 	}
 
-	private TroopTemplate getTroopTemplate(int templateNumber) {
-		List<WebElement> inputs = findElements(By.tagName("form")).get(templateNumber).findElements(By.xpath(".//input[@type='text']"));
+	public TroopTemplate getTroopTemplate(FarmTemplate farmTemplate) {
+		List<WebElement> inputs = findElements(By.tagName("form")).get(farmTemplate.getIndex()).findElements(By.xpath(".//input[@type='text']"));
 		Map<Troop, Integer> aTemplateTroops = new HashMap<Troop, Integer>();
 
 		for (WebElement input : inputs) {
 			try {
-				aTemplateTroops.put(Troop.convertTroopIdToTroop(input.getAttribute("name")), Integer.valueOf(input.getAttribute("value")));
+				aTemplateTroops.put(Troop.valueOfId(input.getAttribute("name")), Integer.valueOf(input.getAttribute("value")));
 			} catch (java.lang.NumberFormatException e) {
 				System.out.println("\"" + input.getAttribute("value") + "\" konnte nicht in eine Zahl umgewandelt werden");
 				e.printStackTrace();
@@ -182,11 +146,29 @@ public class Farmassistant extends VillageSite {
 
 		return new TroopTemplate(aTemplateTroops);
 	}
-
-	public TroopTemplate getTemplateTroops(FarmTemplate farmButton) {
-		return getTroopTemplate(farmButton.getIndex());
+	
+	public boolean enoughTroops(FarmButton farmButton) {
+		boolean enoughTroops = true;
+		TroopTemplate availableTroops = getAvailableTroops();
+		if (farmButton == FarmButton.A || farmButton == FarmButton.B) {
+			FarmTemplate farmTemplate = FarmTemplate.valueOf(farmButton);
+			TroopTemplate troopTemplate = getTroopTemplate(farmTemplate);
+			if (!troopTemplate.enoughTroops(availableTroops)) {
+				enoughTroops = false;
+			}
+		} else if (farmButton == FarmButton.C) {
+			enoughTroops = false;
+			List<Troop> enabledTroopsForCFarming =  getEnabledTroopsForCFarming();
+			Map<Troop, Integer> availableTroopsMap = availableTroops.getAllTroops();
+			for (Troop troop : enabledTroopsForCFarming) {
+				if (availableTroopsMap.get(troop) > 5) {
+					enoughTroops = true;
+				}
+			}
+		}
+		return enoughTroops;
 	}
-
+	
 	public void sortByDateAufwaerts() {
 		sortByDate("asc");
 	}
@@ -208,14 +190,14 @@ public class Farmassistant extends VillageSite {
 	}
 
 	public FarmEntry getFarmEntry(int index) {
-		return new FarmEntry(getFarmEntriesTable().findElements(By.cssSelector(".row_a,.row_b")).get(index));
+		return new FarmEntry(config(), getFarmEntriesTable().findElements(By.cssSelector(".row_a,.row_b")).get(index));
 	}
 
 	public FarmEntry[] getFarmEntries() {
 		List<WebElement> tableRows = getFarmEntriesTable().findElements(By.cssSelector(".row_a,.row_b"));
 		FarmEntry[] farmEntries = new FarmEntry[tableRows.size()];
 		for (int i = 0; i < tableRows.size(); i++) {
-			FarmEntry farmEntry = new FarmEntry(tableRows.get(i));
+			FarmEntry farmEntry = new FarmEntry(config(), tableRows.get(i));
 			farmEntries[i] = farmEntry;
 		}
 		return farmEntries;

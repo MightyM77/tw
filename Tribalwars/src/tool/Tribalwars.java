@@ -1,29 +1,21 @@
 package tool;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import config.Configuration;
 import utile.ResourceBundleUtil;
+import config.TwConfiguration;
 
 public class Tribalwars extends Site {
 	
-	private final static Tribalwars INSTANCE = new Tribalwars();
-	
-	private Tribalwars() {
-		super("", "");
-	}
-	
-	public static Tribalwars getInstance() {
-		return Tribalwars.INSTANCE;
+	public Tribalwars(TwConfiguration pConfig) {
+		super(pConfig, "", "");
 	}
 	
 	@Override
 	public void goToSite() {
-		String url = "http://www." + ResourceBundleUtil.getGeneralBundleString("hostname");
+		String url = "http://www." + ResourceBundleUtil.getGeneralBundleString("hostname", config().getLocale());
 		driver().get(url);
 	}
 
@@ -55,11 +47,11 @@ public class Tribalwars extends Site {
 
 	public void login() {
 		WebElement username = findElement(By.id("user"));
-		username.sendKeys(Configuration.USERNAME);
+		username.sendKeys(config().getUsername());
 		WebElement password = findElement(By.id("password"));
-		password.sendKeys(Configuration.PASSWORD);
+		password.sendKeys(config().getPassword());
 
 		getLoginButton().click();
-		getActiveWorldButton(Configuration.WORLD).click();
+		getActiveWorldButton(config().getWorld()).click();
 	}
 }

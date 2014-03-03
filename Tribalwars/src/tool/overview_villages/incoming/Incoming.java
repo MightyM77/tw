@@ -10,7 +10,7 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import config.Configuration;
+import config.TwConfiguration;
 import tool.overview_villages.OverviewVillages;
 import utile.GameHelper;
 import utile.Helper;
@@ -19,16 +19,16 @@ import utile.ResourceBundleUtil;
 
 public class Incoming extends OverviewVillages {
 
-	private static final String TIME_FORMAT = ResourceBundleUtil.getIncomingBundleString("arrivalTimeFormat");
-	private static final String DATE_FORMAT = ResourceBundleUtil.getIncomingBundleString("arrivalDateFormat");
-	private static final String TODAY_STRING = ResourceBundleUtil.getIncomingBundleString("today");
-	private static final String TOMORROW_STRING = ResourceBundleUtil.getIncomingBundleString("tomorrow");
+	private final String TIME_FORMAT = ResourceBundleUtil.getIncomingBundleString("arrivalTimeFormat", config().getLocale());
+	private final String DATE_FORMAT = ResourceBundleUtil.getIncomingBundleString("arrivalDateFormat", config().getLocale());
+	private final String TODAY_STRING = ResourceBundleUtil.getIncomingBundleString("today", config().getLocale());
+	private final String TOMORROW_STRING = ResourceBundleUtil.getIncomingBundleString("tomorrow", config().getLocale());
 	
 	
 	private static final SimpleDateFormat SDF = new SimpleDateFormat();
 	
-	public Incoming(Mode mode) {
-		super("incomings");
+	public Incoming(TwConfiguration pConfig, Mode mode) {
+		super(pConfig, "incomings");
 		this.urlParameters.put("subtype", mode.getModeId());
 	}
 
@@ -68,7 +68,7 @@ public class Incoming extends OverviewVillages {
 			cal.set(Calendar.YEAR, year);
 			return cal;
 		} catch (ParseException e) {
-			Configuration.LOGGER.error("Ankunftszeit konnte nicht in ein Datum umgewandelt werden. Fehlermeldung: " + e.getMessage());
+			TwConfiguration.LOGGER.error("Ankunftszeit konnte nicht in ein Datum umgewandelt werden. Fehlermeldung: " + e.getMessage());
 			throw e;
 		}
 	}

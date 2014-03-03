@@ -1,15 +1,10 @@
 package tool.overview_villages.incoming;
 
+import config.TwConfiguration;
+
 public class IncomingSupport extends Incoming {
 
-	private static final IncomingSupport INSTANCE = new IncomingSupport();
-	
-	private IncomingSupport() {
-		super(Mode.SUPPORT);
+	private IncomingSupport(TwConfiguration pConfig) {
+		super(pConfig, Mode.SUPPORT);
 	}
-	
-	public static IncomingSupport getInstance() {
-		return INSTANCE;
-	}
-
 }

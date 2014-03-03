@@ -13,30 +13,32 @@ import main.procedure.Procedure;
 import tool.Place;
 import utile.Troop;
 import utile.TroopTemplate;
+import config.TwConfiguration;
 
 public class KeepAttackingVillage extends Procedure {
 	
-	private static final Place PLACE = Place.getInstance();
+	private final Place place;
 	
 	private final Point targetCoords;
 	private final int delayUntilAttackingAgainInSeconds;
 	private final boolean attackAgainWhenTroopsAreBack;
 	private final TroopTemplate troopTemplate;
 	
-	public KeepAttackingVillage(Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords, int pDelayUntilAttackingAgainInSeconds, boolean pAttackAgainWhenTroopsAreBack ) {
-		super(pActivationTime);
+	public KeepAttackingVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords, int pDelayUntilAttackingAgainInSeconds, boolean pAttackAgainWhenTroopsAreBack ) {
+		super(pConfig, pActivationTime);
+		this.place = pPlace;
 		this.delayUntilAttackingAgainInSeconds = pDelayUntilAttackingAgainInSeconds;
 		this.targetCoords = pTargetCoords;
 		this.attackAgainWhenTroopsAreBack = pAttackAgainWhenTroopsAreBack;
 		this.troopTemplate = pTroopTemplate;
 	}
 	
-	public KeepAttackingVillage(Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords, int pDelayUntilAttackingAgainInSeconds) {
-		this(pActivationTime, pTroopTemplate, pTargetCoords, pDelayUntilAttackingAgainInSeconds, false);
+	public KeepAttackingVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords, int pDelayUntilAttackingAgainInSeconds) {
+		this(pConfig, pPlace, pActivationTime, pTroopTemplate, pTargetCoords, pDelayUntilAttackingAgainInSeconds, false);
 	}
 	
-	public KeepAttackingVillage(Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords) {
-		this(pActivationTime, pTroopTemplate, pTargetCoords, 0, true);
+	public KeepAttackingVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords) {
+		this(pConfig, pPlace, pActivationTime, pTroopTemplate, pTargetCoords, 0, true);
 	}
 
 	private Map<Troop, Integer> troopsAmount() {
@@ -47,22 +49,22 @@ public class KeepAttackingVillage extends Procedure {
 	public List<Procedure> doAction() throws ParseException {
 		List<Procedure> procedures = new ArrayList<Procedure>();
 		
-		PLACE.goToSite();
+		place.goToSite();
 		
 		boolean enoughTroops = true;
 		Iterator<Entry<Troop, Integer>> iterator = troopsAmount().entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<Troop, Integer> pairs = (Map.Entry<Troop, Integer>) iterator.next();
-			if (pairs.getKey() != Troop.ARCHER && pairs.getKey() != Troop.MARCHER && PLACE.getTroopAmount(pairs.getKey()) < pairs.getValue()) {
+			if (pairs.getKey() != Troop.ARCHER && pairs.getKey() != Troop.MARCHER && place.getTroopAmount(pairs.getKey()) < pairs.getValue()) {
 				enoughTroops = false;
 			}
 		}
 		
 		Calendar attackAgainTime = Calendar.getInstance();
 		if (enoughTroops) {
-			PLACE.attack(troopsAmount(), targetCoords);
+			place.attack(troopsAmount(), targetCoords);
 			if (this.attackAgainWhenTroopsAreBack) {
-				attackAgainTime.add(Calendar.SECOND, this.troopTemplate.getSlowestTroop().getWalkingDurationSeconds(PLACE.getCoords(), this.targetCoords));
+				attackAgainTime.add(Calendar.SECOND, this.troopTemplate.getSlowestTroop().getWalkingDurationSeconds(place.getCurrentCoord(), this.targetCoords));
 				attackAgainTime.add(Calendar.SECOND, 30);
 			} else {
 				attackAgainTime.add(Calendar.SECOND, this.delayUntilAttackingAgainInSeconds);
@@ -71,7 +73,7 @@ public class KeepAttackingVillage extends Procedure {
 			attackAgainTime.add(Calendar.MINUTE, 2);
 		}
 		
-		procedures.add(new KeepAttackingVillage(attackAgainTime, this.troopTemplate, this.targetCoords, this.delayUntilAttackingAgainInSeconds, this.attackAgainWhenTroopsAreBack));
+		procedures.add(new KeepAttackingVillage(config(), place, attackAgainTime, this.troopTemplate, this.targetCoords, this.delayUntilAttackingAgainInSeconds, this.attackAgainWhenTroopsAreBack));
 		
 		return procedures;
 	}
