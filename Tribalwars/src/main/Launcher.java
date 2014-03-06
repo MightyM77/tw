@@ -23,7 +23,7 @@ public class Launcher {
 	public static void main(String[] args) {
 		TwConfiguration.LOGGER.debug("STARTE PROGRAMM");
 
-		String confFilePath = "antigibb.properties";
+		String confFilePath = "AntiGibb.properties";
 		TwConfiguration config = null;
 		try {
 			config = new TwConfiguration(confFilePath);

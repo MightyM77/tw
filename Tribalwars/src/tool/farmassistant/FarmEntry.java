@@ -86,7 +86,6 @@ public class FarmEntry {
 		return maxLoot;
 	}
 	
-	
 	public ReportStatus getReportStatus() {
 		String farmStatusImageSrc = getColumn(1).findElement(By.tagName("img")).getAttribute("src");
 		return ReportStatus.stringContainsReportStatusColor(farmStatusImageSrc);

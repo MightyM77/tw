@@ -15,33 +15,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import utile.ResourceBundleUtil;
 
 public class TwConfiguration {
-	// // true wenn beim failen des Programms im Sekundentakt ein "BING" auf dem
-	// // Lautsprecher ausgegeben werden soll
-	// public static final boolean BING_ON_EXCEPTION = true;
-	// // true wenn beim failen des Programms eine E-Mail an die konfigurierte
-	// // E-Mail (siehe weiter unten) geschickt werden soll
-	// public static final boolean EMAIL_ON_EXCEPTION = true;
-	// // true wenn beim entdecken einer Bot Protection im Sekundentakt ein
-	// "BING"
-	// // auf dem Lautsprecher ausgegeben werden soll
-	// public static final boolean BING_ON_BOT_PROTECTION = true;
-	// // true wenn beim entdecken einer Bot Protection eine E-Mail an die
-	// // konfigurierte
-	// // E-Mail (siehe weiter unten) geschickt werden soll
-	// public static final boolean EMAIL_BOT_PROTECTION = true;
-	//
-	// public static final Locale LOCALE = Locale.US;
-	// public static final TimeZone TIME_ZONE =
-	// TimeZone.getTimeZone(ResourceBundleUtil.getGeneralBundleString("timezone"));
-	// public static final int WORLD = 14;
-	// // public static final String USERNAME = "MightyM";
-	// // public static final String PASSWORD = "ihrhurensähne_6";
-	// public static final String USERNAME = "AntiGibb";
-	// public static final String PASSWORD = "80Mb3Rpi1@t$";
-	// public static final String SENDER_EMAIL = "mike.noethiger7";
-	// public static final String SENDER_EMAIL_PW = "sony:1967";
-	// public static final String RECIPIENT_EMAIL = "noethiger.mike@gmail.com";
-	// public static final WebDriver DRIVER = new FirefoxDriver();
 
 	public static final Logger LOGGER = LogManager.getRootLogger();
 

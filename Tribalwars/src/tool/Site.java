@@ -81,10 +81,8 @@ public class Site {
 		int durchlaeufe = 0;
 		while (botElement.size() > 0) {
 			if (botElement.get(0).getCssValue("display").equals("none")) {
-				TwConfiguration.LOGGER.info("Botprotection verschwunden");
 				break;
 			}
-			TwConfiguration.LOGGER.warn("Botprotection display value: " + botElement.get(0).getCssValue("display"));
 			if (durchlaeufe < 1) {
 				TwConfiguration.LOGGER.warn("!!!!!!!!!!!!!!! BOTPROTECTION AUFGETAUCHT !!!!!!!!!!!!!!!");
 				if (config().isEmailOnBotProtection()) {
