@@ -24,12 +24,21 @@ public class FarmEntry {
 	private final static int WOOD_POSITION = 0;
 	private final static int CLAY_POSITION = 1;
 	private final static int IRON_POSITION = 2;
-	
+
 	private final WebElement row;
 	private final String dateformat;
 	private final String timeformat;
 	private final TwConfiguration config;
-	
+
+	private Boolean isMaxLoot;
+	private ReportStatus reportStatus;
+	private Point destCoords;
+	private Boolean isGettingAttacked;
+	private Date lastFarmingTime;
+	private Resource resources;
+	private Integer wall;
+	private Double distance;
+
 	public FarmEntry(TwConfiguration pConfig, WebElement row) {
 		this.config = pConfig;
 		this.dateformat = ResourceBundleUtil.getFarmassistantBundleString("dateformat", config.getLocale());
@@ -37,15 +46,15 @@ public class FarmEntry {
 		assertThat(row.getTagName(), equalTo("tr"));
 		this.row = row;
 	}
-	
+
 	private WebElement getRow() {
 		return this.row;
 	}
-	
+
 	private WebElement getColumn(int column) {
 		return getRow().findElements(By.tagName("td")).get(column);
 	}
-	
+
 	private Date parseLastFarmingStringToDate(String lastFarmingTimeString) {
 		Date finalLastFarmingTime = null;
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
@@ -66,12 +75,12 @@ public class FarmEntry {
 
 		return finalLastFarmingTime;
 	}
-	
+
 	public void delete() {
 		getColumn(0).findElement(By.tagName("a")).click();
 	}
-	
-	public boolean isMaxLoot() {
+
+	private boolean findMaxLoot() {
 		List<WebElement> maxLootImage = getColumn(2).findElements(By.tagName("img"));
 		boolean maxLoot = false;
 		// Wenn das Barbarendorf nur gespäht wurde, gibt es kein MaxLoot image
@@ -85,46 +94,57 @@ public class FarmEntry {
 		}
 		return maxLoot;
 	}
-	
-	public ReportStatus getReportStatus() {
-		String farmStatusImageSrc = getColumn(1).findElement(By.tagName("img")).getAttribute("src");
-		return ReportStatus.stringContainsReportStatusColor(farmStatusImageSrc);
-	}
 
-	public Point getDestCoord() {
-		WebElement villageLink = getColumn(3).findElement(By.tagName("a"));
-
-		String[] villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
-		Point villageCoord = new Point(Integer.valueOf(villageCoordArray[0]), Integer.valueOf(villageCoordArray[1]));
-		return villageCoord;
-	}
-
-	public String attackTitle() {
-		boolean alreadyAttacking = false;
-		List<WebElement> attackImage = getColumn(3).findElements(By.tagName("img"));
-		if (attackImage.size() > 0) {
-			alreadyAttacking = true;
+	public boolean isMaxLoot() {
+		if (this.isMaxLoot == null) {
+			this.isMaxLoot = findMaxLoot();
 		}
-		Highlighter.getInstance().highlightElement(config.getDriver(), attackImage.get(0));
-		return attackImage.get(0).getAttribute("title");
+		return this.isMaxLoot;
 	}
-	
+
+	public ReportStatus getOrFindReportStatus() {
+		if (this.reportStatus == null) {
+			String farmStatusImageSrc = getColumn(1).findElement(By.tagName("img")).getAttribute("src");
+			this.reportStatus = ReportStatus.stringContainsReportStatusColor(farmStatusImageSrc);
+		}
+		return this.reportStatus;
+	}
+
+	public Point getOrFindDestCoords() {
+		if (this.destCoords == null) {
+			WebElement villageLink = getColumn(3).findElement(By.tagName("a"));
+			String[] villageCoordArray = villageLink.getText().replaceAll("\\s+", "").substring(1, 8).split("\\|");
+			Point villageCoord = new Point(Integer.valueOf(villageCoordArray[0]), Integer.valueOf(villageCoordArray[1]));
+			this.destCoords = villageCoord;
+		}
+		return this.destCoords;
+	}
+
 	public boolean isGettingAttacked() {
-		boolean alreadyAttacking = false;
-		List<WebElement> attackImage = getColumn(3).findElements(By.tagName("img"));
-		if (attackImage.size() > 0) {
-			alreadyAttacking = true;
+		if (this.isGettingAttacked == null) {
+			boolean alreadyAttacking = false;
+			List<WebElement> attackImage = getColumn(3).findElements(By.tagName("img"));
+			if (attackImage.size() > 0) {
+				alreadyAttacking = true;
+			}
+			this.isGettingAttacked = alreadyAttacking;
 		}
-		return alreadyAttacking;
+		
+		return this.isGettingAttacked;
 	}
-	
+
 	public Date getLastFarmingTime() {
-		String lastFarmingTimeString = getColumn(4).getText();
-		return parseLastFarmingStringToDate(lastFarmingTimeString);
+		if (this.lastFarmingTime == null) {
+			String lastFarmingTimeString = getColumn(4).getText();
+			this.lastFarmingTime = parseLastFarmingStringToDate(lastFarmingTimeString);
+			this.lastFarmingTime = parseLastFarmingStringToDate(lastFarmingTimeString);
+		}
+		return this.lastFarmingTime;
 	}
 
 	/**
-	 * @param resourcePosition the position of the resource (wood = 0, clay = 1, iron = 2)
+	 * @param resourcePosition
+	 *            the position of the resource (wood = 0, clay = 1, iron = 2)
 	 * @return
 	 */
 	private int getResources(int resourcePosition) {
@@ -137,25 +157,35 @@ public class FarmEntry {
 		}
 		return resource;
 	}
-	
+
 	public Resource getResources() {
-		return new Resource(getResources(WOOD_POSITION), getResources(CLAY_POSITION), getResources(IRON_POSITION));
+		if (this.resources == null) {
+			this.resources = new Resource(getResources(WOOD_POSITION), getResources(CLAY_POSITION), getResources(IRON_POSITION));
+		}
+		return this.resources;
 	}
 
 	public int getWallLevel() {
-		int wallLevel;
-		try {
-			wallLevel = Integer.valueOf(getColumn(6).getText());
-		} catch (java.lang.NumberFormatException e) {
-			wallLevel = -1;
+		if (this.wall == null) {
+			int wallLevel;
+			try {
+				wallLevel = Integer.valueOf(getColumn(6).getText());
+			} catch (java.lang.NumberFormatException e) {
+				wallLevel = -1;
+			}
+			this.wall = wallLevel;
 		}
-		return wallLevel;
+		
+		return this.wall;
 	}
 
 	public double getDistance() {
-		return Double.valueOf(getColumn(7).getText());
+		if (this.distance == null) {
+			this.distance = Double.valueOf(getColumn(7).getText());
+		}
+		return this.distance;
 	}
-	
+
 	private WebElement getFarmbutton(FarmButton farmButton) {
 		int farmButtonColumn = -1;
 		switch (farmButton) {
@@ -169,7 +199,7 @@ public class FarmEntry {
 			farmButtonColumn = 10;
 			break;
 		}
-		
+
 		List<WebElement> farmButtonElement = getColumn(farmButtonColumn).findElements(By.tagName("a"));
 		if (farmButtonElement.size() > 0) {
 			return farmButtonElement.get(0);
@@ -177,7 +207,7 @@ public class FarmEntry {
 			return null;
 		}
 	}
-	
+
 	public boolean isFarmButtonExisting(FarmButton farmButton) {
 		WebElement farmButtonElement = getFarmbutton(farmButton);
 		if (farmButtonElement != null) {
@@ -185,7 +215,7 @@ public class FarmEntry {
 		}
 		return false;
 	}
-	
+
 	public boolean isFarmButtonEnabled(FarmButton farmButton) {
 		WebElement farmButtonElement = getFarmbutton(farmButton);
 		if (farmButtonElement != null) {
@@ -193,13 +223,13 @@ public class FarmEntry {
 				return true;
 			}
 		}
-		return false;		
+		return false;
 	}
-	
+
 	public boolean isFarmButtonEnabled(FarmTemplate farmTemplate) {
-		return isFarmButtonEnabled(FarmButton.valueOf(farmTemplate));		
+		return isFarmButtonEnabled(FarmButton.valueOf(farmTemplate));
 	}
-	
+
 	public void clickFarmButton(FarmButton withFarmButton) {
 		WebElement farmButton = getFarmbutton(withFarmButton);
 		if (farmButton != null) {

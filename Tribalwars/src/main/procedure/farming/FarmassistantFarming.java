@@ -33,8 +33,8 @@ public class FarmassistantFarming extends Procedure {
 	private final static Random RANDOM_GENERATOR = new Random();
 	private final static int ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK = 30;
 
-	public FarmassistantFarming(TwConfiguration pConfig, Farmassistant pFarmassistant, Calendar pActivationTime, ReportStatus[] pOnlyThoseReportStatus, FarmTemplate... pFarmTemplates) {
-		super(pConfig, pActivationTime);
+	public FarmassistantFarming(TwConfiguration pConfig, Farmassistant pFarmassistant, Calendar pActivationTimeInMillis, ReportStatus[] pOnlyThoseReportStatus, FarmTemplate... pFarmTemplates) {
+		super(pConfig, pActivationTimeInMillis.getTimeInMillis());
 		this.fa = pFarmassistant;
 		this.onlyThoseReportStatus = pOnlyThoseReportStatus;
 		this.onlyThoseFarmTemplates = pFarmTemplates;
@@ -66,9 +66,9 @@ public class FarmassistantFarming extends Procedure {
 
 	private FarmassistantFarming createFarmassistantABFarming(FarmEntry fe, TroopTemplate troops) {
 		Troop slowestTroop = troops.getSlowestTroop();
-		Calendar troopsBack = slowestTroop.getBackTime(fa.getCurrentCoord(), fe.getDestCoord());
+		Calendar troopsBack = slowestTroop.getBackTime(fa.getCurrentCoord(), fe.getOrFindDestCoords());
 		troopsBack.add(Calendar.SECOND, ACTIVATION_DELAY_AFTER_TROOPS_ARE_BACK);
-		return new FarmassistantFarming(config(), fa, troopsBack, getOnlyThoseReportStatus(), getOnlyThoseFarmTemplates());
+		return new FarmassistantFarming(getTwConfig(), fa, troopsBack, getOnlyThoseReportStatus(), getOnlyThoseFarmTemplates());
 	}
 
 	@Override
@@ -95,17 +95,17 @@ public class FarmassistantFarming extends Procedure {
 				FarmEntry fe = fa.getFarmEntry(i);
 				availableTroops = fa.getAvailableTroops();
 				enoughTroops = false;
-				boolean validFarmEntry = Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getReportStatus()) && (!fe.isGettingAttacked() || firstRun > 1);
+				boolean validFarmEntry = Arrays.asList(getOnlyThoseReportStatus()).contains(fe.getOrFindReportStatus()) && (!fe.isGettingAttacked() || firstRun > 1);
 				boolean validWall = fe.getWallLevel() < 5;
 				
 				for (FarmTemplate farmTemplate : getOnlyThoseFarmTemplates()) {
-					if (templateTroops.get(farmTemplate).enoughTroops(availableTroops)) {
+					if (templateTroops.get(farmTemplate).lessOrEqualTroops(availableTroops)) {
 						enoughTroops = true;
-						if (validFarmEntry && validWall && fe.isFarmButtonEnabled(farmTemplate) && templateTroops.get(farmTemplate).enoughTroops(availableTroops)) {
+						if (validFarmEntry && validWall && fe.isFarmButtonEnabled(farmTemplate) && templateTroops.get(farmTemplate).lessOrEqualTroops(availableTroops)) {
 							fe.clickFarmButton(FarmButton.valueOf(farmTemplate));
 //							FarmassistantFarming newFarmDurchgang = createFarmassistantABFarming(fe, templateTroops.get(farmTemplate));
-							TwConfiguration.LOGGER.info("Barbarendorf gefarmt: ({}|{}) Langsamste Einheit: {}", (int) fe.getDestCoord().getX(), (int) fe
-									.getDestCoord().getY(), templateTroops.get(farmTemplate).getSlowestTroop().getId());
+							TwConfiguration.LOGGER.info("Barbarendorf gefarmt: ({}|{}) Langsamste Einheit: {}", (int) fe.getOrFindDestCoords().getX(), (int) fe
+									.getOrFindDestCoords().getY(), templateTroops.get(farmTemplate).getSlowestTroop().getId());
 //							triggeringProcedures.add(newFarmDurchgang);
 							FarmassistantFarming.gefarmteDoerfer++;
 							try {
@@ -133,7 +133,7 @@ public class FarmassistantFarming extends Procedure {
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, 5);
-		triggeringProcedures.add(new FarmassistantFarming(config(), fa, cal, onlyThoseReportStatus, onlyThoseFarmTemplates));
+		triggeringProcedures.add(new FarmassistantFarming(getTwConfig(), fa, cal, onlyThoseReportStatus, onlyThoseFarmTemplates));
 		TwConfiguration.LOGGER.info("Gefarmte Dörfer in diesem Durchgang: {}", triggeringProcedures.size());
 		TwConfiguration.LOGGER.info("Gefarmte Dörfer total: {}", FarmassistantFarming.gefarmteDoerfer);
 		

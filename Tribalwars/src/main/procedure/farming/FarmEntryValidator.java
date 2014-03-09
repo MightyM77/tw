@@ -26,7 +26,7 @@ public class FarmEntryValidator {
 	private final int wallLesserThan;
 	private final double distanceBiggerThan;
 	private final double distanceLesserThan;
-	
+
 	public static class Builder {
 		// Required parameters
 		private final FarmButton buttonToClick;
@@ -55,7 +55,7 @@ public class FarmEntryValidator {
 			name = pName;
 			return this;
 		}
-		
+
 		public Builder onlyThoseReportStatus(ReportStatus... pOnlyThoseReportStatus) {
 			onlyThoseReportStatus = pOnlyThoseReportStatus;
 			return this;
@@ -65,12 +65,12 @@ public class FarmEntryValidator {
 			onlyFullHaul = true;
 			return this;
 		}
-		
+
 		public Builder notGettingAttacked() {
 			notGettingAttacked = true;
 			return this;
 		}
-		
+
 		public Builder validOnSecondRun() {
 			validOnSecondRun = true;
 			return this;
@@ -85,6 +85,7 @@ public class FarmEntryValidator {
 			notThoseVillages = pNotThoseVillages;
 			return this;
 		}
+
 		public Builder moreResourcesThan(Resource pMoreResourcesThan) {
 			moreResourcesThan = pMoreResourcesThan;
 			return this;
@@ -137,14 +138,17 @@ public class FarmEntryValidator {
 		distanceBiggerThan = builder.distanceBiggerThan;
 		distanceLesserThan = builder.distanceLesserThan;
 	}
-	
-	public boolean isValid(int farmEntryId, int farmDurchgang) {
+
+	public boolean isValid(FarmEntry fe, int farmDurchgang) {
 //		TwConfiguration.LOGGER.info("Starte Farmvalidation '{}'", name);
 		
 		boolean valid = true;
-		FarmEntry fe = fa.getFarmEntry(farmEntryId);
 		String invalidText = "";
 		
+		if (!fe.isFarmButtonEnabled(buttonToClick)) {
+			invalidText = "da " + buttonToClick.toString() + "-Farmbutton disabled ist";
+			return false;
+		}
 		if (notGettingAttacked && fe.isGettingAttacked()) {
 			invalidText = "da Barbarendorf bereits angegriffen wird";
 			return false;
@@ -157,7 +161,7 @@ public class FarmEntryValidator {
 			invalidText = "distanz ist zu gross";
 			return false;
 		}
-		if (onlyThoseReportStatus.length > 0 && !Arrays.asList(onlyThoseReportStatus).contains(fe.getReportStatus())) {
+		if (onlyThoseReportStatus.length > 0 && !Arrays.asList(onlyThoseReportStatus).contains(fe.getOrFindReportStatus())) {
 			invalidText = "wegen falschem ReportStatus";
 			return false;
 		}
@@ -177,11 +181,11 @@ public class FarmEntryValidator {
 			invalidText = "wall ist zu gross";
 			return false;
 		}
-		if (onlyThoseVillages.length > 0 && !Arrays.asList(onlyThoseVillages).contains(fe.getDestCoord())) {
+		if (onlyThoseVillages.length > 0 && !Arrays.asList(onlyThoseVillages).contains(fe.getOrFindDestCoords())) {
 			invalidText =  "da Koordinaten nicht auf white list sind";
 			return false;
 		}
-		if (notThoseVillages.length > 0 && Arrays.asList(notThoseVillages).contains(fe.getDestCoord())) {
+		if (notThoseVillages.length > 0 && Arrays.asList(notThoseVillages).contains(fe.getOrFindDestCoords())) {
 			invalidText = "da Koordinaten auf blacklist sind";
 			return false;
 		}
@@ -200,8 +204,12 @@ public class FarmEntryValidator {
 		
 		return valid;
 	}
-	
+
 	public FarmButton getButtonToClick() {
 		return buttonToClick;
+	}
+	
+	public boolean isValidOnSecondRund() {
+		return this.validOnSecondRun;
 	}
 }

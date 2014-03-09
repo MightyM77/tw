@@ -83,7 +83,7 @@ public class Ablauf {
 
 	public void executeReadyProcedure() throws ParseException {
 		for (int i = 0; i < procedures.size(); i++) {
-			if (procedures.get(i).getActivationTime().compareTo(Calendar.getInstance()) <= 0) {
+			if (procedures.get(i).createCalendarOfActivationTime().compareTo(Calendar.getInstance()) <= 0) {
 				procedures.addAll(procedures.get(i).doAction());
 				procedures.remove(i);
 				i--;

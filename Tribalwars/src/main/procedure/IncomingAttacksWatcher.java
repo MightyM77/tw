@@ -21,7 +21,7 @@ public class IncomingAttacksWatcher extends Procedure {
 	private final Market market;
 	
 	public IncomingAttacksWatcher(TwConfiguration pConfig, IncomingAttack pIncomingAttack, Place pPlace, Market pMarket, Calendar pActivationTime) {
-		super(pConfig, pActivationTime);
+		super(pConfig, pActivationTime.getTimeInMillis());
 		this.incomingAttack = pIncomingAttack;
 		this.place = pPlace;
 		this.market = pMarket;
@@ -40,8 +40,8 @@ public class IncomingAttacksWatcher extends Procedure {
 				Calendar arrival = incomingAttack.getArrivingTime(i);
 				TwConfiguration.LOGGER.info("Angriff erkannt. Angreifer: {} Ankunftszeit: {}", incomingAttack.getAttackerName(i), incomingAttack.getArrivingTime(i).getTime());
 				arrival.add(Calendar.MINUTE, MINUTES_BEFORE_INCOMING_ARRIVES);
-				procedures.add(new AttackVillage(config(), place, arrival, RAUSSTELL_COORDS));
-				procedures.add(new SendResources(config(), market, arrival, RAUSSTELL_COORDS));
+				procedures.add(new AttackVillage(getTwConfig(), place, arrival, RAUSSTELL_COORDS));
+				procedures.add(new SendResources(getTwConfig(), market, arrival, RAUSSTELL_COORDS));
 			}
 		}
 		

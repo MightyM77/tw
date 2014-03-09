@@ -22,7 +22,7 @@ public class KeepRecruitUnit extends Procedure {
 	private final RecruitmentBuilding recruitmentBuilding;
 
 	public KeepRecruitUnit(TwConfiguration pConfig, RecruitmentBuilding pRecruitmentBuilding, Calendar pActivationTime, Building pBuilding, Troop pTroop) {
-		super(pConfig, pActivationTime);
+		super(pConfig, pActivationTime.getTimeInMillis());
 		this.building = pBuilding;
 		this.troop = pTroop;
 		this.recruitmentBuilding = pRecruitmentBuilding;
@@ -49,16 +49,16 @@ public class KeepRecruitUnit extends Procedure {
 				int maxRecruitmentSeconds = recruitmentBuilding.getMaxRecruit(getTroop()) * recruitmentBuilding.getRecruitmentSeconds(getTroop());
 				recruitmentTime.add(Calendar.SECOND, maxRecruitmentSeconds);
 				recruitmentTime.add(Calendar.MINUTE, 1);
-				KeepRecruitUnit newKeepRecruitUnit = new KeepRecruitUnit(config(), recruitmentBuilding, recruitmentTime, getBuilding(), getTroop());
+				KeepRecruitUnit newKeepRecruitUnit = new KeepRecruitUnit(getTwConfig(), recruitmentBuilding, recruitmentTime, getBuilding(), getTroop());
 				procedures.add(newKeepRecruitUnit);
 				recruitmentBuilding.getMaxRecruit(troop);
 				int maxRecruit = recruitmentBuilding.getMaxRecruit(troop);
 				recruitmentBuilding.recruitMax(getTroop());
-				TwConfiguration.LOGGER.info("{} {} rekrutiert. Rekrutierung voraussichtlich am {} abgeschlossen (Aktivierungszeit um wieder zu rekrutieren)", maxRecruit, troop.getId(), newKeepRecruitUnit.getActivationTime().getTime());
+				TwConfiguration.LOGGER.info("{} {} rekrutiert. Rekrutierung voraussichtlich am {} abgeschlossen (Aktivierungszeit um wieder zu rekrutieren)", maxRecruit, troop.getId(), newKeepRecruitUnit.createCalendarOfActivationTime().getTime());
 			} else {
 				TwConfiguration.LOGGER.warn("Einheit {} kann momentan nicht rekrutiert werden, da zu wenig Ressourcen vorhanden sind. Versuche in {} Minuten noch einmal", getTroop().getId(), KeepRecruitUnit.TRY_RECRUIT_AGAIN);
 				recruitmentTime.add(Calendar.MINUTE, KeepRecruitUnit.TRY_RECRUIT_AGAIN);
-				procedures.add(new KeepRecruitUnit(config(), recruitmentBuilding, recruitmentTime, getBuilding(), getTroop()));
+				procedures.add(new KeepRecruitUnit(getTwConfig(), recruitmentBuilding, recruitmentTime, getBuilding(), getTroop()));
 			}
 		} else {
 			TwConfiguration.LOGGER.warn("Die Einheit {} kann zur Zeit nicht rekrutiert werden (wahrscheinlich noch nicht erforscht)", troop.getId());

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class TroopTemplate {
 
-	private Map<Troop, Integer> troops;
+	private final Map<Troop, Integer> troops;
 	
 	public TroopTemplate() {
 		this(getZeroTroopTemplate());
@@ -21,10 +21,10 @@ public class TroopTemplate {
 		
 	}
 	
-	public boolean enoughTroops(TroopTemplate availableTroops) {
+	public boolean lessOrEqualTroops(TroopTemplate availableTroops) {
 		boolean enoughTroops = true;
 		Map<Troop, Integer> availableTroopsMap = availableTroops.getAllTroops();
-		for (Troop troop : Troop.values()) {
+		for (Troop troop : availableTroopsMap.keySet()) {
 			if (troops.get(troop) > availableTroopsMap.get(troop)) {
 				enoughTroops = false;
 			}
@@ -63,11 +63,19 @@ public class TroopTemplate {
 		return Troop.getSlowestTroop(getNotZeroTroops().keySet().toArray(troops));
 	}
 	
-	public void setTroopAmount(Troop troop, int amount) {
+	public void setTroops(Troop troop, int amount) {
 		getAllTroops().put(troop, amount);
 	}
 	
-	public void addTroopAmount(Troop troop, int amount) {
+	public void addTroopTroops(Troop troop, int amount) {
 		getAllTroops().put(troop, getAllTroops().get(troop) + amount);
+	}
+	
+	public void subtractTroopTemplate(TroopTemplate troopTemplate) {
+		Map<Troop, Integer> otherTroops = troopTemplate.getAllTroops();
+		for (Troop troop : otherTroops.keySet()) {
+			int newValue = troops.get(troop) - otherTroops.get(troop);
+			this.troops.put(troop, newValue);
+		}
 	}
 }

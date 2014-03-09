@@ -25,7 +25,7 @@ public class KeepAttackingVillage extends Procedure {
 	private final TroopTemplate troopTemplate;
 	
 	public KeepAttackingVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopTemplate, Point pTargetCoords, int pDelayUntilAttackingAgainInSeconds, boolean pAttackAgainWhenTroopsAreBack ) {
-		super(pConfig, pActivationTime);
+		super(pConfig, pActivationTime.getTimeInMillis());
 		this.place = pPlace;
 		this.delayUntilAttackingAgainInSeconds = pDelayUntilAttackingAgainInSeconds;
 		this.targetCoords = pTargetCoords;
@@ -73,7 +73,7 @@ public class KeepAttackingVillage extends Procedure {
 			attackAgainTime.add(Calendar.MINUTE, 2);
 		}
 		
-		procedures.add(new KeepAttackingVillage(config(), place, attackAgainTime, this.troopTemplate, this.targetCoords, this.delayUntilAttackingAgainInSeconds, this.attackAgainWhenTroopsAreBack));
+		procedures.add(new KeepAttackingVillage(getTwConfig(), place, attackAgainTime, this.troopTemplate, this.targetCoords, this.delayUntilAttackingAgainInSeconds, this.attackAgainWhenTroopsAreBack));
 		
 		return procedures;
 	}

@@ -26,7 +26,7 @@ public class AttackVillage extends Procedure {
 	private final boolean attackWithAllTroops;
 	
 	private AttackVillage (TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords, boolean pAttackWithAllTroops) {
-		super(pConfig, pActivationTime);
+		super(pConfig, pActivationTime.getTimeInMillis());
 		this.place = pPlace;
 		this.troopsAmount = pTroopsAmount;
 		this.coords = pCoords;

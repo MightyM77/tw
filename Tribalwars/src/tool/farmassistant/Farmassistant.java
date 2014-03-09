@@ -148,12 +148,14 @@ public class Farmassistant extends VillageSite {
 	}
 	
 	public boolean enoughTroops(FarmButton farmButton) {
+		return enoughTroops(getAvailableTroops(), farmButton);
+	}
+	public boolean enoughTroops(TroopTemplate availableTroops, FarmButton farmButton) {
 		boolean enoughTroops = true;
-		TroopTemplate availableTroops = getAvailableTroops();
 		if (farmButton == FarmButton.A || farmButton == FarmButton.B) {
 			FarmTemplate farmTemplate = FarmTemplate.valueOf(farmButton);
 			TroopTemplate troopTemplate = getTroopTemplate(farmTemplate);
-			if (!troopTemplate.enoughTroops(availableTroops)) {
+			if (!troopTemplate.lessOrEqualTroops(availableTroops)) {
 				enoughTroops = false;
 			}
 		} else if (farmButton == FarmButton.C) {

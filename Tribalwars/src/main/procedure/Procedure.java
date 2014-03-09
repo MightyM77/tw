@@ -12,26 +12,39 @@ import config.TwConfiguration;
 
 public abstract class Procedure{
 
-	private final Calendar activationTime;
+	private final long activationTimeMillis;
 	private final TwConfiguration config;
 	
-	public Procedure(TwConfiguration pConfig, Calendar pActivationTime) {
+	public Procedure(TwConfiguration pConfig, long pActivationTimeMillis) {
 		this.config = pConfig;
-		this.activationTime = pActivationTime;
-		TwConfiguration.LOGGER.debug("Neuer " + Helper.getInstance().getClassName(getClass()) + " erstellt, Aktivierungszeit: " + getActivationTime().getTime());
+		this.activationTimeMillis = pActivationTimeMillis;
+		TwConfiguration.LOGGER.debug("Neuer " + Helper.getInstance().getClassName(getClass()) + " erstellt, Aktivierungszeit: " + createCalendarOfActivationTime().getTime());
 	}
 	
-	protected TwConfiguration config() {
+	protected TwConfiguration getTwConfig() {
 		return config;
 	}
 	
 	public abstract List<Procedure> doAction() throws ParseException;
 	
 	protected WebDriver driver() {
-		return config().getDriver();
+		return getTwConfig().getDriver();
 	}
 	
-	public Calendar getActivationTime() {
-		return this.activationTime;
+	public long getActivationTimeInMillis() {
+		return this.activationTimeMillis;
+	}
+	
+	public Calendar createCalendarOfActivationTime() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(this.activationTimeMillis);
+		return cal;
+	}
+	
+	public boolean isReadyForActivating() {
+		if (Calendar.getInstance().getTimeInMillis() >= activationTimeMillis) {
+			return true;
+		}
+		return false;
 	}
 }

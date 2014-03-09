@@ -15,7 +15,7 @@ public class SendResources extends Procedure {
 	private final Point destinationCoords;
 	
 	public SendResources(TwConfiguration pConfig, Market pMarket, Calendar pActivationTime, Point pDestinationCoords) {
-		super(pConfig, pActivationTime);
+		super(pConfig, pActivationTime.getTimeInMillis());
 		this.market = pMarket;
 		this.destinationCoords = pDestinationCoords;
 	}
