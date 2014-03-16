@@ -57,7 +57,9 @@ public class FarmassistantFarming_n2 extends Procedure {
 			this.twConfig = pTwConfig;
 			this.fa = pFarmassistant;
 			this.fev = pFarmEntryValidator;
+			this.additionalFarmEntryValidators.add(this.fev);
 			this.villageId = pVillageId;
+			this.additionalVillageIds.add(this.villageId);
 		}
 		
 		public Builder addFarmEntryValidators(FarmEntryValidator... farmEntryValidators) {
@@ -93,8 +95,6 @@ public class FarmassistantFarming_n2 extends Procedure {
 		super(builder.twConfig, builder.activationTimeInMillis);
 		this.builderOfThisInstance = builder;
 		this.fa = builder.fa;
-		builder.additionalFarmEntryValidators.add(builder.fev);
-		builder.additionalVillageIds.add(builder.villageId);
 		this.farmEntryValidators = ImmutableList.copyOf(builder.additionalFarmEntryValidators);
 		this.villageIds = ImmutableList.copyOf(builder.additionalVillageIds);
 		this.usedFarmbuttons = getUsedFarmButtons(this.farmEntryValidators);
@@ -133,10 +133,6 @@ public class FarmassistantFarming_n2 extends Procedure {
 			return triggeringProcedures;
 		}
 
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, 5);
-		triggeringProcedures.add(new FarmassistantFarming_n2(this.builderOfThisInstance.setActivationTimeInMillis(cal)));
-
 		for (Integer villageId : this.villageIds) {
 			startFarmDurchgang(villageId);
 			notEnoughTroops.clear();
@@ -144,6 +140,10 @@ public class FarmassistantFarming_n2 extends Procedure {
 			TwConfiguration.LOGGER.info("Gefarmte Dörfer total (seit Programmstart): {}", FarmassistantFarming_n.gefarmteDoerfer);
 		}
 
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, 5);
+		triggeringProcedures.add(new FarmassistantFarming_n2(this.builderOfThisInstance.setActivationTimeInMillis(cal)));
+		
 		return triggeringProcedures;
 	}
 

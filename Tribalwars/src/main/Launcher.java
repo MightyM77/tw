@@ -42,7 +42,8 @@ public class Launcher {
 		
 		FarmEntryValidator farmEntryValidator1 = new FarmEntryValidator.Builder(farmassistant, FarmButton.C).lessDistanceThan(10.1).notGettingAttacked().name("C-Farmin < 10").build();
 		FarmEntryValidator farmEntryValidator2 = new FarmEntryValidator.Builder(farmassistant, FarmButton.B).onlyThoseReportStatus(ReportStatus.NO_LOSSES).biggerDistanceThan(10).notGettingAttacked().name("1-Durchlauf B-Farmin").build();
-		FarmEntryValidator farmEntryValidator3 = new FarmEntryValidator.Builder(farmassistant, FarmButton.B).onlyThoseReportStatus(ReportStatus.NO_LOSSES).biggerDistanceThan(10).validOnSecondRun().name("2-Durchlauf B-farmin").build();
+		FarmEntryValidator farmEntryValidator3 = new FarmEntryValidator.Builder(farmassistant, FarmButton.B).onlyThoseReportStatus(ReportStatus.NO_LOSSES).biggerDistanceThan(10).validOnSecondRun().name("3-Durchlauf B-farmin").build();
+		FarmEntryValidator farmEntryValidator4 = new FarmEntryValidator.Builder(farmassistant, FarmButton.A).onlyThoseReportStatus(ReportStatus.NO_LOSSES).lessDistanceThan(10.1).notGettingAttacked().name("2-Durchlauf A-farmin").build();
 		
 		FarmEntryValidator[] farmEntryValidators = new FarmEntryValidator[] {
 				farmEntryValidator1,
@@ -55,7 +56,7 @@ public class Launcher {
 		
 		FarmassistantFarming_n ff_n = new FarmassistantFarming_n(Calendar.getInstance(), config, farmassistant, farmEntryValidators, 726, 2502, 3640);
 		
-		FarmassistantFarming_n2 ff_n2 = new FarmassistantFarming_n2.Builder(Calendar.getInstance(), config, farmassistant, farmEntryValidator1, 726).addFarmEntryValidators(farmEntryValidator2, farmEntryValidator3).addVillageIds(634, 2502, 3640).build();
+		FarmassistantFarming_n2 ff_n2 = new FarmassistantFarming_n2.Builder(Calendar.getInstance(), config, farmassistant, farmEntryValidator1, 3640).addFarmEntryValidators(farmEntryValidator4, farmEntryValidator2, farmEntryValidator3).addVillageIds(3052, 778, 634, 725, 1349, 2502, 2734, 1938).build();
 		List<Procedure> procedures = new ArrayList<Procedure>();
 		procedures.add(ff_n2);
 		
