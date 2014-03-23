@@ -224,13 +224,6 @@ public class FarmassistantFarming_n2 extends Procedure {
 											farmEntriesCount);
 									return farmDurchgaenge;
 								}
-								// try {
-								// Thread.sleep(BASE_TIMEOUT_AFTER_FARMBTN_CLICK
-								// +
-								// RANDOM_GENERATOR.nextInt(RANDOM_RANGE_TIMOUT_AFTER_FARMBTN_CLICK));
-								// } catch (InterruptedException e) {
-								// e.printStackTrace();
-								// }
 								break;
 
 							}
@@ -243,6 +236,16 @@ public class FarmassistantFarming_n2 extends Procedure {
 					TwConfiguration.LOGGER.info("Gehe zur nächsten Farmassistent Seite");
 					fa.nextPage();
 					availableTroops = fa.getAvailableTroops();
+					boolean enoughTroops = false;
+					for (FarmButton fb : usedFarmbuttons) {
+						if (fa.enoughTroops(availableTroops, fb)) {
+							enoughTroops = true;
+						}
+					}
+					if (!enoughTroops) {
+						break;
+					}
+					
 				} else if (farmedVillagesInThisDurchgang > 0) {
 					TwConfiguration.LOGGER.info("Gehe zur ersten Farmassistent Seite");
 					fa.goToPage(1);

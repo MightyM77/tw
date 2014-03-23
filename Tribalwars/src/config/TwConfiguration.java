@@ -9,6 +9,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -31,7 +32,8 @@ public class TwConfiguration {
 	private final boolean bingOnBotProtection;
 	private final boolean emailOnException;
 	private final boolean emailOnBotProtection;
-
+	private final JavascriptExecutor javascriptExecutor;
+	
 	public TwConfiguration(WebDriver pDriver, String propertyFilePath) throws ConfigurationException {
 		PropertiesConfiguration mainConfig = new PropertiesConfiguration(propertyFilePath);
 		mainConfig.setThrowExceptionOnMissing(true);
@@ -41,6 +43,7 @@ public class TwConfiguration {
 		
 		// Initialize fields
 		driver = pDriver;
+		javascriptExecutor = (JavascriptExecutor) driver;
 		username = mainConfig.getString("username");
 		password = mainConfig.getString("password");
 		world = mainConfig.getInt("world");
@@ -99,6 +102,10 @@ public class TwConfiguration {
 
 	public WebDriver getDriver() {
 		return driver;
+	}
+	
+	public JavascriptExecutor getJavascriptExecutor() {
+		return javascriptExecutor;
 	}
 
 	public boolean isBingOnException() {

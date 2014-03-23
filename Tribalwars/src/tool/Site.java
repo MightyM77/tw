@@ -53,7 +53,7 @@ public class Site {
 
 	public void goToSite() {
 
-		String url = config().getLocale().getCountry() + config.getWorld() + "." + ResourceBundleUtil.getGeneralBundleString("hostname", config.getLocale()) + this.file + "?";
+		String url = "http://" + config().getLocale().getCountry().toLowerCase() + config.getWorld() + "." + ResourceBundleUtil.getGeneralBundleString("hostname", config.getLocale()) + this.file + "?";
 
 		Iterator<Entry<String, String>> iterator = urlParameters.entrySet().iterator();
 		while (iterator.hasNext()) {

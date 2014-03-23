@@ -233,6 +233,7 @@ public class FarmEntry {
 	public void clickFarmButton(FarmButton withFarmButton) {
 		WebElement farmButton = getFarmbutton(withFarmButton);
 		if (farmButton != null) {
+			config.getJavascriptExecutor().executeScript(String.format("window.scrollTo(0, %s);", farmButton.getLocation().y));
 			farmButton.click();
 		} else {
 			System.out.println(withFarmButton.name() + "-Button ist nicht vorhanden!");
