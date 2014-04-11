@@ -34,7 +34,7 @@ public class Incoming extends OverviewVillages {
 
 	private List<WebElement> getIncomingTrs() {
 		WebElement table = findElement(By.id("incomings_table"));
-		List<WebElement> incomingsTr = table.findElements(By.className("tr.row_a,tr.row_b"));
+		List<WebElement> incomingsTr = table.findElements(By.cssSelector("tr.row_a,tr.row_b"));
 		return incomingsTr;
 	}
 	
@@ -95,4 +95,18 @@ public class Incoming extends OverviewVillages {
 		return parseArrivalStringToDate(getIncomingTds(incomingIndex).get(4).getText());
 	}
 	
+	public String getIncomingName(int incomingIndex) {
+		return getIncomingTds(incomingIndex).get(0).findElement(By.className("quickedit-label")).getText();
+	}
+	
+	public void ranameIncoming(int incomingIndex, String newName) {
+		WebElement firstRow = getIncomingTds(incomingIndex).get(0);
+		
+		config().getJavascriptExecutor().executeScript(String.format("window.scrollTo(0, %s);", firstRow.getLocation().y));
+		
+		firstRow.findElement(By.className("rename-icon")).click();
+		firstRow.findElement(By.xpath(".//input[@type='text']")).clear();
+		firstRow.findElement(By.xpath(".//input[@type='text']")).sendKeys(newName);
+		firstRow.findElement(By.xpath(".//input[@value='OK']")).click();
+	}
 }

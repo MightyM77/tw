@@ -10,6 +10,7 @@ import main.procedure.attacking.AttackVillage;
 import tool.Market;
 import tool.Place;
 import tool.overview_villages.incoming.IncomingAttack;
+import utile.Troop;
 import config.TwConfiguration;
 
 public class IncomingAttacksWatcher extends Procedure {
@@ -27,9 +28,30 @@ public class IncomingAttacksWatcher extends Procedure {
 		this.market = pMarket;
 	}
 
+//	@Override
+//	public List<Procedure> doAction() throws ParseException {
+//		TwConfiguration.LOGGER.info("Starte Incoming-Attacks-Watcher-Procedur");
+//		List<Procedure> procedures = new ArrayList<Procedure>();
+//		
+//		incomingAttack.goToSite();
+//		
+//		int incomingsCount = incomingAttack.getIncomingsCount();
+//		if (incomingsCount > 0) {
+//			for (int i = 0; i < incomingsCount; i++) {
+//				Calendar arrival = incomingAttack.getArrivingTime(i);
+//				TwConfiguration.LOGGER.info("Angriff erkannt. Angreifer: {} Ankunftszeit: {}", incomingAttack.getAttackerName(i), incomingAttack.getArrivingTime(i).getTime());
+//				arrival.add(Calendar.MINUTE, MINUTES_BEFORE_INCOMING_ARRIVES);
+//				procedures.add(new AttackVillage(getTwConfig(), place, arrival, RAUSSTELL_COORDS));
+//				procedures.add(new SendResources(getTwConfig(), market, arrival, RAUSSTELL_COORDS));
+//			}
+//		}
+//		
+//		return procedures;
+//	}
+	
 	@Override
 	public List<Procedure> doAction() throws ParseException {
-		TwConfiguration.LOGGER.info("Starte Incoming-Attacks-Watcher-Procedur");
+		TwConfiguration.LOGGER.info("Starte Incoming-Renamer-Procedur");
 		List<Procedure> procedures = new ArrayList<Procedure>();
 		
 		incomingAttack.goToSite();
@@ -37,13 +59,29 @@ public class IncomingAttacksWatcher extends Procedure {
 		int incomingsCount = incomingAttack.getIncomingsCount();
 		if (incomingsCount > 0) {
 			for (int i = 0; i < incomingsCount; i++) {
-				Calendar arrival = incomingAttack.getArrivingTime(i);
-				TwConfiguration.LOGGER.info("Angriff erkannt. Angreifer: {} Ankunftszeit: {}", incomingAttack.getAttackerName(i), incomingAttack.getArrivingTime(i).getTime());
-				arrival.add(Calendar.MINUTE, MINUTES_BEFORE_INCOMING_ARRIVES);
-				procedures.add(new AttackVillage(getTwConfig(), place, arrival, RAUSSTELL_COORDS));
-				procedures.add(new SendResources(getTwConfig(), market, arrival, RAUSSTELL_COORDS));
+				if (incomingAttack.getIncomingName(i).contains("Attack")) {
+					TwConfiguration.LOGGER.info("Neuer Angriff erkannt. Angreifer: {} Ankunftszeit: {}", incomingAttack.getAttackerName(i), incomingAttack.getArrivingTime(i).getTime());
+					Calendar arrival = incomingAttack.getArrivingTime(i);
+					Point originCoords = incomingAttack.getOriginCoord(i);
+					Point destCoords = incomingAttack.getDestinationCoord(i);
+					
+					String incomingName = "";
+					
+					for (Troop troop : Troop.values()) {
+						int walkingDurationSeconds = troop.getWalkingDurationSeconds(originCoords, destCoords);
+						Calendar theoreticalArrival = Calendar.getInstance();
+						theoreticalArrival.add(Calendar.SECOND, walkingDurationSeconds);
+						if (arrival.compareTo(theoreticalArrival) < 0) {
+							incomingName += troop.toString() + " ";
+						}
+					}
+					
+					incomingAttack.ranameIncoming(i, incomingName);
+				}
 			}
 		}
+		
+//		procedures.add(new IncomingAttacksWatcher(getTwConfig(), pIncomingAttack, pPlace, pMarket, pActivationTime))
 		
 		return procedures;
 	}

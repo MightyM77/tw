@@ -21,7 +21,7 @@ public class Place extends Site {
 	
 	private final static Random RANDOM_GENERATOR = new Random();
 	
-	private Place(TwConfiguration pConfig) {
+	public Place(TwConfiguration pConfig) {
 		super(pConfig, "/game.php", "place");
 	}
 	
@@ -135,15 +135,37 @@ public class Place extends Site {
 		}
 	}
 
-	public void attackWithAllTroops(Point coords) {
+	public void attackWithAllTroops(int pSourceVillageId, Point targetCoords) {
+		this.urlParameters.put("village", String.valueOf(pSourceVillageId));
+		goToSite();
 		getAllTroopsLink().click();
-		setCoords(coords);
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		setCoords(targetCoords);
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		attack();
 	}
 
 	public void support(Map<Troop, Integer> troopsAmount, Point coords) {
 		setTroops(troopsAmount);
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		setCoords(coords);
+		try {
+			Thread.sleep(500 + RANDOM_GENERATOR.nextInt(500));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		support();
 	}
 

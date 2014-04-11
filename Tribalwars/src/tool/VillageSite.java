@@ -11,6 +11,5 @@ public class VillageSite extends Site {
 	public void goToSite(int villageId) {
 		this.urlParameters.put("village", String.valueOf(villageId));
 		super.goToSite();
-		this.urlParameters.remove("village");
 	}
 }

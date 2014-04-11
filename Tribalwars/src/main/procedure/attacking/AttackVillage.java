@@ -22,31 +22,37 @@ public class AttackVillage extends Procedure {
 
 	private final Place place;
 	private final TroopTemplate troopsAmount;
-	private final Point coords;
+	private final Point targetCoords;
+	private final int sourceVillageId;
 	private final boolean attackWithAllTroops;
 	
-	private AttackVillage (TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords, boolean pAttackWithAllTroops) {
+	private AttackVillage (TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, int pSourceVillageId, Point pTargetCoords, boolean pAttackWithAllTroops) {
 		super(pConfig, pActivationTime.getTimeInMillis());
 		this.place = pPlace;
 		this.troopsAmount = pTroopsAmount;
-		this.coords = pCoords;
+		this.sourceVillageId = pSourceVillageId;
+		this.targetCoords = pTargetCoords;
 		this.attackWithAllTroops = pAttackWithAllTroops;
 	}
 	
-	public AttackVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, Point pCoords) {
-		this(pConfig, pPlace, pActivationTime, pTroopsAmount, pCoords, false);
+	public AttackVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, TroopTemplate pTroopsAmount, int pSourceVillageId, Point pTargetCoords) {
+		this(pConfig, pPlace, pActivationTime, pTroopsAmount, pSourceVillageId, pTargetCoords, false);
 	}
 
-	public AttackVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, Point pCoords) {
-		this(pConfig, pPlace, pActivationTime, null, pCoords, true);
+	public AttackVillage(TwConfiguration pConfig, Place pPlace, Calendar pActivationTime, int pSourceVillageId, Point pTargetCoords) {
+		this(pConfig, pPlace, pActivationTime, null, pSourceVillageId, pTargetCoords, true);
 	}
 	
 	private Place place() {
 		return this.place;
 	}
 	 
-	private Point coords() {
-		return this.coords;
+	private int getSourceVillageId() {
+		return this.sourceVillageId;
+	}
+	
+	private Point getTargetCoords() {
+		return this.targetCoords;
 	}
 	
 	private Map<Troop, Integer> troopsAmount() {
@@ -62,10 +68,10 @@ public class AttackVillage extends Procedure {
 		
 		if (this.attackWithAllTroops) {
 			if (place().isSomeUnitPresent()) {
-				TwConfiguration.LOGGER.info("Greife ({}|{}) mit allen Truppen an", this.coords.x, this.coords.y);
-				place().attackWithAllTroops(this.coords);
+				TwConfiguration.LOGGER.info("Greife ({}|{}) mit allen Truppen an", this.targetCoords.x, this.targetCoords.y);
+				place().attackWithAllTroops(this.sourceVillageId, this.targetCoords);
 			} else {
-				TwConfiguration.LOGGER.warn("Es sind keine Truppen anwesend, ({}|{}) kann nicht mit allen Truppen angegriffen werden", this.coords.x, this.coords.y);
+				TwConfiguration.LOGGER.warn("Es sind keine Truppen anwesend, ({}|{}) kann nicht mit allen Truppen angegriffen werden", this.targetCoords.x, this.targetCoords.y);
 			}
 		} else {
 			boolean enoughTroops = true;
@@ -77,10 +83,10 @@ public class AttackVillage extends Procedure {
 				}
 			}
 			if (enoughTroops) {
-				TwConfiguration.LOGGER.info("Greife ({}|{}) an", this.coords.x, this.coords.y);
-				place().attack(troopsAmount(), coords());
+				TwConfiguration.LOGGER.info("Greife ({}|{}) an", this.targetCoords.x, this.targetCoords.y);
+				place().attack(troopsAmount(), getTargetCoords());
 			} else {
-				TwConfiguration.LOGGER.warn("Es sind nicht genügend Truppen anwesend, ({}|{}) kann nicht angegriffen werden", this.coords.x, this.coords.y);
+				TwConfiguration.LOGGER.warn("Es sind nicht genügend Truppen anwesend, ({}|{}) kann nicht angegriffen werden", this.targetCoords.x, this.targetCoords.y);
 			}
 		}
 		

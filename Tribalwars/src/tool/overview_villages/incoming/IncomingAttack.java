@@ -4,7 +4,7 @@ import config.TwConfiguration;
 
 public class IncomingAttack extends Incoming {
 	
-	private IncomingAttack(TwConfiguration pConfig) {
+	public IncomingAttack(TwConfiguration pConfig) {
 		super(pConfig, Mode.ATTACKS);
 	}
 
